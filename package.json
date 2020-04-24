@@ -1,0 +1,36 @@
+{
+  "name": "@zaetrik/omicron",
+  "version": "0.0.1",
+  "description": "HTTP Server",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "prepublish": "tsc",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "tsc -b && node dist/index.js",
+    "dev": "nodemon dist/index.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedomic/omicron.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cedomic/omicron/issues"
+  },
+  "homepage": "https://github.com/cedomic/omicron#readme",
+  "author": "Cedomic",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^13.13.2",
+    "nodemon": "^2.0.3",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "path-to-regexp": "^6.1.0",
+    "fp-ts": "^2.5.3"
+  }
+}
