@@ -6,6 +6,6 @@ Please see `/example/example.ts` for an example setup.
 
 ## Usage
 
-    npm i --save @zaetrik/omicron
+    npm i --save @zaetrik/omicron fp-ts
 
 Written in TypeScript
