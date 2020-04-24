@@ -4,6 +4,8 @@ import {
   HttpResponse,
   ContentType,
 } from "../../http.interface";
+import * as E from "fp-ts/lib/Either";
+import { pipe } from "fp-ts/lib/pipeable";
 
 export const handleResponse = (
   routeHandler: (req: HttpRequest, res: HttpResponse) => RouteResponse
@@ -12,7 +14,16 @@ export const handleResponse = (
     status = 200,
     response = "",
     contentType = ContentType.APPLICATION_JSON,
-  } = routeHandler(req, res);
+  } = pipe(
+    E.tryCatch(() => routeHandler(req, res), E.toError),
+    E.getOrElse(
+      (e) =>
+        ({
+          status: 500,
+          response: e.message,
+        } as RouteResponse)
+    )
+  );
 
   res.writeHead(status, {
     "Content-Type": contentType,

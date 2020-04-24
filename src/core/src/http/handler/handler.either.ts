@@ -12,11 +12,13 @@ import { errorHandler } from "./handler.error";
 
 export const reqEither = {
   pipe: pipe,
-  use: (fn: (req: HttpRequest, res: HttpResponse) => any) => (
+  use: (
+    fn: (req: HttpRequest, res: HttpResponse, ...args: unknown[]) => any
+  ) => (
     obj: E.Either<Error, RouteHandler> = E.right({
       path: "",
       method: "*",
-      handler: (req, res) => ({
+      handler: (req, res, ...args) => ({
         status: 404,
         response: "<h1>Default Handler</h1>",
         contentType: ContentType.TEXT_HTML,

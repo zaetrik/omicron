@@ -9,7 +9,11 @@ import {
 export interface RouteHandler {
   path: string;
   method: HttpMethod;
-  handler: (req: HttpRequest, res: HttpResponse) => RouteResponse;
+  handler: (
+    req: HttpRequest,
+    res: HttpResponse,
+    ...args: unknown[]
+  ) => RouteResponse;
 }
 
 export interface RegisteredRouteHandler extends RouteHandler {

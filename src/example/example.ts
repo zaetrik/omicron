@@ -31,23 +31,21 @@ const option = omicron.reqOption.pipe(
   )
 );
 
-const optionWithFlow = omicron.reqOption.pipe(
-  flow(
-    omicron.reqOption.matchPath("/option/flow"),
-    omicron.reqOption.matchMethod("GET"),
-    omicron.reqOption.use((req, res) => ({
-      response: { query: req.query, params: req.params, body: req.body },
-    })),
-    O.getOrElse(
-      () =>
-        ({
-          path: "/option/flow",
-          method: "*",
-          handler: omicron.errorHandler("Error in my route"),
-        } as omicron.RouteHandler)
-    )
-  )()
-);
+const optionWithFlow = flow(
+  omicron.reqOption.matchPath("/option/flow"),
+  omicron.reqOption.matchMethod("GET"),
+  omicron.reqOption.use((req, res) => ({
+    response: { query: req.query, params: req.params, body: req.body },
+  })),
+  O.getOrElse(
+    () =>
+      ({
+        path: "/option/flow",
+        method: "*",
+        handler: omicron.errorHandler("Error in my route"),
+      } as omicron.RouteHandler)
+  )
+)();
 
 const either = omicron.reqEither.pipe(
   omicron.reqEither.matchPath("/either")(),
@@ -67,23 +65,21 @@ const either = omicron.reqEither.pipe(
   )
 );
 
-const eitherWithFlow = omicron.reqEither.pipe(
-  flow(
-    omicron.reqEither.matchPath("/either/flow"),
-    omicron.reqEither.matchMethod("GET"),
-    omicron.reqEither.use((req, res) => ({
-      response: { query: req.query, params: req.params, body: req.body },
-    })),
-    E.getOrElse(
-      (e: Error) =>
-        ({
-          path: "/either/flow",
-          method: "*",
-          handler: omicron.errorHandler(e.message),
-        } as omicron.RouteHandler)
-    )
-  )()
-);
+const eitherWithFlow = flow(
+  omicron.reqEither.matchPath("/either/flow"),
+  omicron.reqEither.matchMethod("GET"),
+  omicron.reqEither.use((req, res) => ({
+    response: { query: req.query, params: req.params, body: req.body },
+  })),
+  E.getOrElse(
+    (e: Error) =>
+      ({
+        path: "/either/flow",
+        method: "*",
+        handler: omicron.errorHandler(e.message),
+      } as omicron.RouteHandler)
+  )
+)();
 
 const listener = omicron.httpListener({
   // Here you can add all your routes that should be exposed
