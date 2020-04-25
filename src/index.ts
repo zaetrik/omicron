@@ -14,7 +14,8 @@ export { all } from "./core/src/http/handler/handler.wildcard";
 export { post } from "./core/src/http/handler/handler.post";
 export { put } from "./core/src/http/handler/handler.put";
 export { dlt } from "./core/src/http/handler/handler.delete";
-export { reqOption } from "./core/src/http/handler/handler.option";
-export { reqEither } from "./core/src/http/handler/handler.either";
 export { handleResponse } from "./core/src/http/handler/handler.response";
 export { errorHandler } from "./core/src/http/handler/handler.error";
+
+// Util
+export * from "./core/src/http/handler/handler.util";

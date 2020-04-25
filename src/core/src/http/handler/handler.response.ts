@@ -6,31 +6,36 @@ import {
 } from "../../http.interface";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/pipeable";
+import * as TE from "fp-ts/lib/TaskEither";
+import * as T from "fp-ts/lib/Task";
+import { RouteHandler, RouteHandlerFn } from "../router/router.interface";
+import { errorHandler, defaultErrorHandler } from "./handler.error";
+import axios from "axios";
+import { IO } from "fp-ts/lib/IO";
 
-export const handleResponse = (
-  routeHandler: (req: HttpRequest, res: HttpResponse) => RouteResponse
-) => (req: HttpRequest) => (res: HttpResponse) => {
-  const {
-    status = 200,
-    response = "",
-    contentType = ContentType.APPLICATION_JSON,
-  } = pipe(
-    E.tryCatch(() => routeHandler(req, res), E.toError),
-    E.getOrElse(
-      (e) =>
-        ({
-          status: 500,
-          response: e.message,
-        } as RouteResponse)
+const executeHandler = (
+  req: HttpRequest,
+  res: HttpResponse,
+  routeHandler: RouteHandlerFn,
+  errorHandler: RouteHandlerFn
+): IO<void> => async () =>
+  await pipe(
+    // Here we execute our route handler and wrap it inside an Either<Error, RouteResponse>
+    await pipe(routeHandler(req, res))(),
+    E.fold(
+      // If error in our route handler =>
+      async (err) =>
+        pipe(
+          await pipe(errorHandler(req, res, err))(),
+          E.fold(
+            (errorHandlerError) =>
+              sendResponse(res, { response: errorHandlerError.message }),
+            (errorHandlerSuccess) => sendResponse(res, errorHandlerSuccess)
+          )
+        ),
+      async (result) => sendResponse(res, result)
     )
   );
-
-  res.writeHead(status, {
-    "Content-Type": contentType,
-  });
-
-  res.end(transformResponse(response));
-};
 
 const transformResponse = (response: any): string => {
   switch (typeof response) {
@@ -43,4 +48,21 @@ const transformResponse = (response: any): string => {
     default:
       return response;
   }
+};
+
+const sendResponse = (
+  res: HttpResponse,
+  { status = 200, response = "", contentType = ContentType.APPLICATION_JSON }
+) => {
+  res.writeHead(status, {
+    "Content-Type": contentType,
+  });
+
+  res.end(transformResponse(response));
+};
+
+export const handleResponse = (routeHandler: RouteHandlerFn) => (
+  errorHandler: RouteHandlerFn
+) => (req: HttpRequest) => (res: HttpResponse) => {
+  executeHandler(req, res, routeHandler, errorHandler)();
 };

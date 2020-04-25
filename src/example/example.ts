@@ -1,127 +1,110 @@
 import * as omicron from "../index";
 import { IO } from "fp-ts/lib/IO";
-import * as O from "fp-ts/lib/Option";
+import axios from "axios";
+import { pipe } from "fp-ts/lib/pipeable";
+import * as T from "fp-ts/lib/Task";
 import * as E from "fp-ts/lib/Either";
-import { flow } from "fp-ts/lib/function";
+import * as TE from "fp-ts/lib/TaskEither";
+import {
+  HttpMethodType,
+  RouteResponse,
+  HttpMethod,
+  HttpRequest,
+  HttpResponse,
+} from "../core/src/http.interface";
 
 // We can create routes with those simple helper functions => {HTTP_METHOD}(path: string, handler: (req: omicron.HttpRequest, res: omicron.HttpResponse) => any)
-const getHandler = omicron.get("/get", (req, res) => "My GET request");
-const postHandler = omicron.post("/post", (req, res) => "My POST request");
-const putHandler = omicron.put("/put", (req, res) => "My PUT request");
-const deleteHandler = omicron.dlt("/delete", (req, res) => "My DELETE request");
-const allHandler = omicron.all("/all", (req, res) => "My catch all handler");
+const getHandler = omicron.get("/get")(async (req, res) => {
+  const { data } = await axios.get("https://api.exchangeratesapi.io");
+  throw new Error("error message");
+  return data;
+})(async (req, res, err) => {
+  const { data } = await axios.get("https://api.exchangeratesapi.io");
+  throw new Error("IN ERROR HANDLER");
+  return { data, err: err.message };
+});
 
-// We can also use reqOption & reqEither to handle our incoming request more like a stream
-// reqOption & reqEither are Option or Either monads respectively
-const option = omicron.reqOption.pipe(
-  omicron.reqOption.matchPath("/option")(),
-  omicron.reqOption.matchMethod("POST"),
-  omicron.reqOption.use((req, res) => ({
-    status: 200,
-    response: { query: req.query, params: req.params, body: req.body },
-    contentType: omicron.ContentType.TEXT_HTML,
-  })),
-  O.getOrElse(
-    () =>
-      ({
-        path: "/option",
-        method: "*",
-        handler: omicron.errorHandler("Error in my route"),
-      } as omicron.RouteHandler)
-  )
+const postHandler = omicron.post("/post")((req, res) => "My POST request")(
+  (req, res, err) => "My error handler"
 );
 
-const optionWithFlow = flow(
-  omicron.reqOption.matchPath("/option/flow"),
-  omicron.reqOption.matchMethod("GET"),
-  omicron.reqOption.use((req, res) => ({
-    response: { query: req.query, params: req.params, body: req.body },
-  })),
-  O.getOrElse(
-    () =>
-      ({
-        path: "/option/flow",
-        method: "*",
-        handler: omicron.errorHandler("Error in my route"),
-      } as omicron.RouteHandler)
-  )
-)();
-
-const either = omicron.reqEither.pipe(
-  omicron.reqEither.matchPath("/either")(),
-  omicron.reqEither.matchMethod("POST"),
-  omicron.reqEither.use((req, res) => ({
-    status: 200,
-    response: { query: req.query, params: req.params, body: req.body },
-    contentType: omicron.ContentType.TEXT_HTML,
-  })),
-  E.getOrElse(
-    (e: Error) =>
-      ({
-        path: "/either",
-        method: "*",
-        handler: omicron.errorHandler(e.message),
-      } as omicron.RouteHandler)
-  )
+const putHandler = omicron.put("/put")((req, res) => "My PUT request")(
+  (req, res) => "My error handler"
 );
 
-const eitherWithFlow = flow(
-  omicron.reqEither.matchPath("/either/flow"),
-  omicron.reqEither.matchMethod("GET"),
-  omicron.reqEither.use((req, res) => ({
-    response: { query: req.query, params: req.params, body: req.body },
-  })),
-  E.getOrElse(
-    (e: Error) =>
-      ({
-        path: "/either/flow",
-        method: "*",
-        handler: omicron.errorHandler(e.message),
-      } as omicron.RouteHandler)
-  )
-)();
+const deleteHandler = omicron.dlt("/delete")((req, res) => "My DELETE request")(
+  (req, res) => "My error handler"
+);
+
+const allHandler = omicron.all("/all")((req, res) => "My catch all handler")(
+  (req, res) => "My error handler"
+);
 
 const listener = omicron.httpListener({
   // Here you can add all your routes that should be exposed
   routes: [
-    option,
-    optionWithFlow,
-    either,
-    eitherWithFlow,
     getHandler,
     allHandler,
     postHandler,
     putHandler,
     deleteHandler,
     // You could also define your handler with an object like this
-    {
+    /*{
       path: "/",
       method: "GET" as omicron.HttpMethod,
-      handler: (
-        req: omicron.HttpRequest,
-        res: omicron.HttpResponse
-      ): omicron.RouteResponse => {
-        return {
-          status: 200,
-          response: `The query parameters are: ${JSON.stringify(req.query)}`,
-          contentType: omicron.ContentType.TEXT_HTML,
-        };
-      },
+      handler: omicron.createRouteHandlerFn(
+        async (
+          req: omicron.HttpRequest,
+          res: omicron.HttpResponse
+        ): Promise<omicron.RouteResponse> => {
+          const { data } = await axios.get("https://api.exchangeratesapi.io");
+
+          return {
+            status: 200,
+            response: data,
+            contentType: omicron.ContentType.TEXT_HTML,
+          };
+        }
+      )(
+        (
+          req: omicron.HttpRequest,
+          res: omicron.HttpResponse
+        ): omicron.RouteResponse => {
+          return {
+            status: 500,
+            response: "My error handler",
+            contentType: omicron.ContentType.TEXT_HTML,
+          };
+        }
+      ),
     },
     {
       path: "/path/:name",
       method: "GET" as omicron.HttpMethod,
-      handler: (
-        req: omicron.HttpRequest,
-        res: omicron.HttpResponse
-      ): omicron.RouteResponse => {
-        return {
-          status: 200,
-          response: `<h1>My name is ${req.params.name}</h1>`,
-          contentType: omicron.ContentType.TEXT_HTML,
-        };
-      },
-    },
+      handler: omicron.createRouteHandlerFn(
+        (
+          req: omicron.HttpRequest,
+          res: omicron.HttpResponse
+        ): omicron.RouteResponse => {
+          return {
+            status: 200,
+            response: `<h1>My name is ${req.params.name}</h1>`,
+            contentType: omicron.ContentType.TEXT_HTML,
+          };
+        }
+      )(
+        (
+          req: omicron.HttpRequest,
+          res: omicron.HttpResponse
+        ): omicron.RouteResponse => {
+          return {
+            status: 500,
+            response: "My error handler",
+            contentType: omicron.ContentType.TEXT_HTML,
+          };
+        }
+      ),
+    },*/
   ],
 });
 

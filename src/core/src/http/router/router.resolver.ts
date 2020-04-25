@@ -1,4 +1,4 @@
-import { RegisteredRouteHandler } from "./router.interface";
+import { RouteHandler, RouteHandlerFn } from "./router.interface";
 import { HttpRequest, RouteResponse, HttpResponse } from "../../http.interface";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as O from "fp-ts/lib/Option";
@@ -7,9 +7,10 @@ import { getQuery } from "./router.query";
 
 // Here we populate the request object with query, params & body
 export const resolveRequest = (req: HttpRequest) => (
-  routeHandler: RegisteredRouteHandler
+  routeHandler: RouteHandler
 ): O.Option<{
-  routeHandler: (req: HttpRequest, res: HttpResponse) => RouteResponse;
+  routeHandler: RouteHandlerFn;
+  errorHandler: RouteHandlerFn;
   populatedReq: HttpRequest;
 }> => {
   // split at query => path-to-regexp cannot handle it
@@ -21,6 +22,7 @@ export const resolveRequest = (req: HttpRequest) => (
       (handler) =>
         ({
           routeHandler: handler.handler, // Add some null check with Option
+          errorHandler: handler.errorHandler,
           populatedReq: {
             ...req,
             params: getPathParams(handler.path, urlPath),
@@ -28,7 +30,8 @@ export const resolveRequest = (req: HttpRequest) => (
             body: {},
           },
         } as {
-          routeHandler: (req: HttpRequest, res: HttpResponse) => RouteResponse;
+          routeHandler: RouteHandlerFn;
+          errorHandler: RouteHandlerFn;
           populatedReq: HttpRequest;
         })
     )

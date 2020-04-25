@@ -4,7 +4,7 @@ import { setupRouting } from "../router/router.setup";
 import { matchRoute } from "../router/router.matcher";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
-import { errorHandler } from "../handler/handler.error";
+import { errorHandler as defaultErrorHandler } from "../handler/handler.error";
 import { handleResponse } from "../handler/handler.response";
 import {
   ListenerConfig,
@@ -13,6 +13,7 @@ import {
   HttpListener,
 } from "./listener.interface";
 import { resolveRequest } from "../router/router.resolver";
+import { RouteHandlerFn } from "../router/router.interface";
 
 const createListener = <T extends ListenerConfig, U extends ListenerHandler>(
   config: ListenerConfig
@@ -28,16 +29,17 @@ const createListener = <T extends ListenerConfig, U extends ListenerHandler>(
 
     // Here we try to match our req.url to the correct RouteHandler
     // Then we try to resolve the request by populating the req object with the query, params & body objects
-    const { routeHandler, populatedReq } = pipe(
+    const { routeHandler, errorHandler, populatedReq } = pipe(
       routeMatcher(serverReq),
       O.chain((routeHandler) => resolveRequest(serverReq)(routeHandler)),
       O.getOrElse(() => ({
-        routeHandler: errorHandler("No handler found"),
+        routeHandler: defaultErrorHandler("No handler found"),
+        errorHandler: defaultErrorHandler("No handler found"),
         populatedReq: serverReq as HttpRequest,
       }))
     );
 
-    handleResponse(routeHandler)(populatedReq)(serverRes);
+    handleResponse(routeHandler)(errorHandler)(populatedReq)(serverRes);
   };
 
   return handle;
