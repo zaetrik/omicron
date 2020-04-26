@@ -26,13 +26,17 @@ const executeHandler = (
       // If error in our route handler =>
       async (err) =>
         pipe(
+          // Execute errorHandler and wrap it inside an Either<Error, RouteResponse>
           await pipe(errorHandler(req, res, err))(),
           E.fold(
+            // If error in errorHandler =>
             (errorHandlerError) =>
               sendResponse(res, { response: errorHandlerError.message }),
+            // If errorHandler successful
             (errorHandlerSuccess) => sendResponse(res, errorHandlerSuccess)
           )
         ),
+      // If routeHandler successful =>
       async (result) => sendResponse(res, result)
     )
   );

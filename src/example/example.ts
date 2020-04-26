@@ -1,6 +1,5 @@
 import * as omicron from "../index";
 import { IO } from "fp-ts/lib/IO";
-import axios from "axios";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as T from "fp-ts/lib/Task";
 import * as E from "fp-ts/lib/Either";
@@ -15,16 +14,17 @@ import {
 
 // We can create routes with those simple helper functions => {HTTP_METHOD}(path: string, handler: (req: omicron.HttpRequest, res: omicron.HttpResponse) => any)
 const getHandler = omicron.get("/get")(async (req, res) => {
-  const { data } = await axios.get("https://api.exchangeratesapi.io");
-  throw new Error("error message");
-  return data;
+  const wait = (timeout: number) =>
+    new Promise((resolve) => setTimeout(resolve, timeout));
+
+  await wait(5000);
+
+  return "It works";
 })(async (req, res, err) => {
-  const { data } = await axios.get("https://api.exchangeratesapi.io");
-  throw new Error("IN ERROR HANDLER");
-  return { data, err: err.message };
+  return err.message;
 });
 
-const postHandler = omicron.post("/post")((req, res) => "My POST request")(
+const postHandler = omicron.post("/post")((req, res) => req.body)(
   (req, res, err) => "My error handler"
 );
 
