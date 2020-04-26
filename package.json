@@ -39,7 +39,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "path-to-regexp": "^6.1.0",
-    "fp-ts": "^2.5.3"
+    "fp-ts": "^2.5.3",
+    "path-to-regexp": "^6.1.0"
   }
 }
