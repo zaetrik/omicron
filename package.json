@@ -1,12 +1,12 @@
 {
   "name": "@zaetrik/omicron",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Simple library for building HTTP servers with Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "prepublish": "tsc",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest ./src/**",
     "build": "tsc",
     "start": "tsc -b && node dist/index.js",
     "dev": "nodemon dist/index.js"
@@ -34,9 +34,14 @@
   "author": "Cedomic",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^25.2.1",
     "@types/node": "^13.13.2",
+    "jest": "^25.4.0",
+    "mock-req": "^0.2.0",
     "nodemon": "^2.0.3",
-    "typescript": "^3.8.3"
+    "ts-jest": "^25.4.0",
+    "typescript": "^3.8.3",
+    "mock-res": "^0.5.0"
   },
   "dependencies": {
     "fp-ts": "^2.5.3",

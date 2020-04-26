@@ -14,7 +14,7 @@ export const errorHandler = (err: string): RouteHandlerFn =>
     () => createRouteHandlerFn(defaultErrorHandler(err))
   )();
 
-export const defaultErrorHandler = (err: string) => (
+const defaultErrorHandler = (err: string) => (
   req: HttpRequest,
   res: HttpResponse
 ): RouteResponse => ({

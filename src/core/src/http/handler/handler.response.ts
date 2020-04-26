@@ -22,7 +22,10 @@ const executeHandler = (
           E.fold(
             // If error in errorHandler =>
             (errorHandlerError) =>
-              sendResponse(res, { response: errorHandlerError.message }),
+              sendResponse(res, {
+                response: errorHandlerError.message,
+                status: 500,
+              }),
             // If errorHandler successful
             (errorHandlerSuccess) => sendResponse(res, errorHandlerSuccess)
           )
