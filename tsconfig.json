@@ -10,7 +10,8 @@
     "typeRoots": ["./node_modules/@types"],
     "rootDir": "src",
     "outDir": "dist",
-    "removeComments": true
+    "removeComments": true,
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["src/**/specs/**/*"]
 }
