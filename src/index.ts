@@ -16,6 +16,7 @@ export { put } from "./core/src/http/handler/handler.put";
 export { dlt } from "./core/src/http/handler/handler.delete";
 export { handleResponse } from "./core/src/http/handler/handler.response";
 export { errorHandler } from "./core/src/http/handler/handler.error";
+export { r } from "./core/src/http/handler/handler.request";
 
 // Util
 export * from "./core/src/http/handler/handler.util";

@@ -6,8 +6,6 @@ import {
 } from "../../http.interface";
 import { RouteHandler } from "../router/router.interface";
 import { createRouteHandlerFn } from "./handler.util";
-import * as TE from "fp-ts/lib/TaskEither";
-import { pipe } from "fp-ts/lib/pipeable";
 
 export const get = (path: string) => (
   handler: (req: HttpRequest, res: HttpResponse) => unknown,
@@ -21,25 +19,21 @@ export const get = (path: string) => (
   path: path,
   method: "GET",
   handler: createRouteHandlerFn(
-    async (req: HttpRequest, res: HttpResponse): Promise<RouteResponse> => {
-      return {
-        status: 200,
-        response: await handler(req, res),
-        contentType: contentType,
-      };
-    }
+    async (req: HttpRequest, res: HttpResponse): Promise<RouteResponse> => ({
+      status: 200,
+      response: await handler(req, res),
+      contentType: contentType,
+    })
   ),
   errorHandler: createRouteHandlerFn(
     async (
       req: HttpRequest,
       res: HttpResponse,
       error: Error
-    ): Promise<RouteResponse> => {
-      return {
-        status: errorStatus || 500,
-        response: await errorHandler(req, res, error),
-        contentType: errorContentType,
-      };
-    }
+    ): Promise<RouteResponse> => ({
+      status: errorStatus || 500,
+      response: await errorHandler(req, res, error),
+      contentType: errorContentType,
+    })
   ),
 });

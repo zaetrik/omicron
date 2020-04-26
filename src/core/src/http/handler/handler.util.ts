@@ -1,6 +1,5 @@
 import { HttpRequest, HttpResponse, RouteResponse } from "../../http.interface";
 import { RouteHandlerFn } from "../router/router.interface";
-import { pipe } from "fp-ts/lib/pipeable";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 

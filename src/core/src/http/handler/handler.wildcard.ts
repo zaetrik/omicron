@@ -6,7 +6,6 @@ import {
 } from "../../http.interface";
 import { RouteHandler } from "../router/router.interface";
 import { createRouteHandlerFn } from "./handler.util";
-import { defaultErrorHandler } from "./handler.error";
 
 export const all = (path: string) => (
   handler: (req: HttpRequest, res: HttpResponse) => unknown,
@@ -20,25 +19,21 @@ export const all = (path: string) => (
   path: path,
   method: "*",
   handler: createRouteHandlerFn(
-    async (req: HttpRequest, res: HttpResponse): Promise<RouteResponse> => {
-      return {
-        status: 200,
-        response: await handler(req, res),
-        contentType: contentType,
-      };
-    }
+    async (req: HttpRequest, res: HttpResponse): Promise<RouteResponse> => ({
+      status: 200,
+      response: await handler(req, res),
+      contentType: contentType,
+    })
   ),
   errorHandler: createRouteHandlerFn(
     async (
       req: HttpRequest,
       res: HttpResponse,
       error: Error
-    ): Promise<RouteResponse> => {
-      return {
-        status: errorStatus || 500,
-        response: await errorHandler(req, res, error),
-        contentType: errorContentType,
-      };
-    }
+    ): Promise<RouteResponse> => ({
+      status: errorStatus || 500,
+      response: await errorHandler(req, res, error),
+      contentType: errorContentType,
+    })
   ),
 });

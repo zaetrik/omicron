@@ -19,25 +19,21 @@ export const dlt = (path: string) => (
   path: path,
   method: "DELETE",
   handler: createRouteHandlerFn(
-    async (req: HttpRequest, res: HttpResponse): Promise<RouteResponse> => {
-      return {
-        status: 200,
-        response: await handler(req, res),
-        contentType: contentType,
-      };
-    }
+    async (req: HttpRequest, res: HttpResponse): Promise<RouteResponse> => ({
+      status: 200,
+      response: await handler(req, res),
+      contentType: contentType,
+    })
   ),
   errorHandler: createRouteHandlerFn(
     async (
       req: HttpRequest,
       res: HttpResponse,
       error: Error
-    ): Promise<RouteResponse> => {
-      return {
-        status: errorStatus || 500,
-        response: await errorHandler(req, res, error),
-        contentType: errorContentType,
-      };
-    }
+    ): Promise<RouteResponse> => ({
+      status: errorStatus || 500,
+      response: await errorHandler(req, res, error),
+      contentType: errorContentType,
+    })
   ),
 });

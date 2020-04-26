@@ -13,7 +13,6 @@ import {
   HttpListener,
 } from "./listener.interface";
 import { resolveRequest } from "../router/router.resolver";
-import { RouteHandlerFn } from "../router/router.interface";
 
 const createListener = <T extends ListenerConfig, U extends ListenerHandler>(
   config: ListenerConfig

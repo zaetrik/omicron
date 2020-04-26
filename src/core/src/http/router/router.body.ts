@@ -5,7 +5,7 @@ import { HttpRequest, RequestBody } from "../../http.interface";
 export const getBody = async (req: HttpRequest): Promise<RequestBody> =>
   JSON.parse((await fromReadableStream(req)).toString());
 
-const fromReadableStream = (stream: Readable): Promise<any[]> => {
+const fromReadableStream = (stream: Readable): Promise<Buffer[]> => {
   stream.pause();
   return new Promise((resolve, reject) => {
     const data: any[] = [];

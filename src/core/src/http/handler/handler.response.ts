@@ -1,16 +1,7 @@
-import {
-  RouteResponse,
-  HttpRequest,
-  HttpResponse,
-  ContentType,
-} from "../../http.interface";
+import { HttpRequest, HttpResponse, ContentType } from "../../http.interface";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/pipeable";
-import * as TE from "fp-ts/lib/TaskEither";
-import * as T from "fp-ts/lib/Task";
-import { RouteHandler, RouteHandlerFn } from "../router/router.interface";
-import { errorHandler, defaultErrorHandler } from "./handler.error";
-import axios from "axios";
+import { RouteHandlerFn } from "../router/router.interface";
 import { IO } from "fp-ts/lib/IO";
 
 const executeHandler = (

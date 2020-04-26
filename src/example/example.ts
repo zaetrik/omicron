@@ -1,18 +1,17 @@
 import * as omicron from "../index";
 import { IO } from "fp-ts/lib/IO";
-import { pipe } from "fp-ts/lib/pipeable";
-import * as T from "fp-ts/lib/Task";
 import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
 import {
-  HttpMethodType,
-  RouteResponse,
   HttpMethod,
   HttpRequest,
   HttpResponse,
+  ContentType,
 } from "../core/src/http.interface";
+import { RouteHandler } from "../core/src/http/router/router.interface";
+import { r } from "../core/src/http/handler/handler.request";
 
-// We can create routes with those simple helper functions => {HTTP_METHOD}(path: string, handler: (req: omicron.HttpRequest, res: omicron.HttpResponse) => any)
+// We can create routes with those simple helper functions => {HTTP_METHOD}(path: string)(handler: (req: omicron.HttpRequest, res: omicron.HttpResponse) => any)(errorHandler: (req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => any)
 const getHandler = omicron.get("/get")(async (req, res) => {
   const wait = (timeout: number) =>
     new Promise((resolve) => setTimeout(resolve, timeout));
@@ -20,7 +19,7 @@ const getHandler = omicron.get("/get")(async (req, res) => {
   await wait(5000);
 
   return "It works";
-})(async (req, res, err) => {
+})((req, res, err) => {
   return err.message;
 });
 
@@ -40,71 +39,43 @@ const allHandler = omicron.all("/all")((req, res) => "My catch all handler")(
   (req, res) => "My error handler"
 );
 
+// You can also contruct a RouteHandler with the r() function
+const myHandler = r("/myhandler")("GET")(() =>
+  Promise.reject({
+    response: "Handler",
+  })
+)(() => ({ response: "Error Handler" }));
+
+// Under the hood the previous helper functions construct this object:
+const manualWay: RouteHandler = {
+  path: "/manual",
+  method: "GET" as HttpMethod,
+  handler: (req: HttpRequest, res: HttpResponse) =>
+    TE.tryCatch(
+      async () => ({
+        response: "Manual Handler",
+        status: 200,
+        contentType: ContentType.TEXT_HTML,
+      }),
+      E.toError
+    ),
+  errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
+    TE.tryCatch(
+      async () => ({ response: `An error occured: ${err.message}` }),
+      E.toError
+    ),
+};
+
 const listener = omicron.httpListener({
   // Here you can add all your routes that should be exposed
   routes: [
+    myHandler,
+    manualWay,
     getHandler,
     allHandler,
     postHandler,
     putHandler,
     deleteHandler,
-    // You could also define your handler with an object like this
-    /*{
-      path: "/",
-      method: "GET" as omicron.HttpMethod,
-      handler: omicron.createRouteHandlerFn(
-        async (
-          req: omicron.HttpRequest,
-          res: omicron.HttpResponse
-        ): Promise<omicron.RouteResponse> => {
-          const { data } = await axios.get("https://api.exchangeratesapi.io");
-
-          return {
-            status: 200,
-            response: data,
-            contentType: omicron.ContentType.TEXT_HTML,
-          };
-        }
-      )(
-        (
-          req: omicron.HttpRequest,
-          res: omicron.HttpResponse
-        ): omicron.RouteResponse => {
-          return {
-            status: 500,
-            response: "My error handler",
-            contentType: omicron.ContentType.TEXT_HTML,
-          };
-        }
-      ),
-    },
-    {
-      path: "/path/:name",
-      method: "GET" as omicron.HttpMethod,
-      handler: omicron.createRouteHandlerFn(
-        (
-          req: omicron.HttpRequest,
-          res: omicron.HttpResponse
-        ): omicron.RouteResponse => {
-          return {
-            status: 200,
-            response: `<h1>My name is ${req.params.name}</h1>`,
-            contentType: omicron.ContentType.TEXT_HTML,
-          };
-        }
-      )(
-        (
-          req: omicron.HttpRequest,
-          res: omicron.HttpResponse
-        ): omicron.RouteResponse => {
-          return {
-            status: 500,
-            response: "My error handler",
-            contentType: omicron.ContentType.TEXT_HTML,
-          };
-        }
-      ),
-    },*/
   ],
 });
 
