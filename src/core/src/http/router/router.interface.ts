@@ -5,14 +5,18 @@ import {
   HttpResponse,
   HttpMethodType,
 } from "../../http.interface";
+import { TaskEither } from "fp-ts/lib/TaskEither";
+import { Task } from "fp-ts/lib/Task";
 
 export interface RouteHandler {
   path: string;
   method: HttpMethod;
-  handler: (req: HttpRequest, res: HttpResponse) => RouteResponse;
+  handler: RouteHandlerFn;
+  errorHandler: RouteHandlerFn;
 }
 
-export interface RegisteredRouteHandler extends RouteHandler {
-  pathRegExp: RegExp;
-  parameters: string[] | undefined;
-}
+export type RouteHandlerFn = (
+  req: HttpRequest,
+  res: HttpResponse,
+  error?: Error
+) => TaskEither<Error, RouteResponse>;
