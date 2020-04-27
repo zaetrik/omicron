@@ -1,7 +1,7 @@
 stages:
   - test
 
-test typescript-express-module-example:
+test omicron:
   stage: test
   image: node:lts-alpine
   script:

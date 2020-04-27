@@ -1,5 +1,7 @@
 # Omicron - Simple HTTP servers
 
+[![coverage report](https://gitlab.com/Cedomic/omicron/badges/gitlab-ci/coverage.svg)](https://gitlab.com/Cedomic/omicron/-/commits/gitlab-ci) [![pipeline status](https://gitlab.com/Cedomic/omicron/badges/gitlab-ci/pipeline.svg)](https://gitlab.com/Cedomic/omicron/-/commits/gitlab-ci)
+
 Omicron is a small library to build HTTP servers in Node.js.
 
 Omicron uses a more functional approach compared to other solutions, e.g. the functions to create route handlers are curried by default which can be useful for function composition.
