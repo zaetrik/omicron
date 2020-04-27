@@ -8,6 +8,7 @@
   "scripts": {
     "test": "jest ./src/**",
     "test:watch": "jest --watch ./src/**",
+    "test:coverage": "jest --collectCoverage ./src/**",
     "build": "tsc",
     "start": "tsc -b && node dist/index.js",
     "dev": "nodemon dist/index.js"
