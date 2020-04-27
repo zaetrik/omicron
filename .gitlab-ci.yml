@@ -1,0 +1,10 @@
+stages:
+  - test
+
+test typescript-express-module-example:
+  stage: test
+  image: node:lts-alpine
+  script:
+    - npm i
+    - npm run test:coverage
+  coverage: /All\sfiles.*?\s+(\d+.\d+)/
