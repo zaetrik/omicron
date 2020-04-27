@@ -101,7 +101,7 @@ describe("Handler request methods", () => {
     expect(routeHandler.method).toEqual("OPTIONS");
   });
 
-  test("creates a HEAD route handler", () => {
+  /*test("creates a HEAD route handler", () => {
     // given
     const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
       ({
@@ -115,9 +115,9 @@ describe("Handler request methods", () => {
     expect(routeHandler).toBeDefined();
     expect(routeHandler.path).toEqual("/");
     expect(routeHandler.method).toEqual("HEAD");
-  });
+  });*/
 
-  test("creates a CONNECT route handler", () => {
+  /*test("creates a CONNECT route handler", () => {
     // given
     const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
       ({
@@ -131,7 +131,7 @@ describe("Handler request methods", () => {
     expect(routeHandler).toBeDefined();
     expect(routeHandler.path).toEqual("/");
     expect(routeHandler.method).toEqual("CONNECT");
-  });
+  });*/
 
   test("creates a PATCH route handler", () => {
     // given

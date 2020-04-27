@@ -32,7 +32,7 @@ describe("Resolves route", () => {
 
   test("resolves route with correct RouteHandler => POST /name/:name route", async () => {
     // given
-    const req = new MockReq({ method: "POST", url: "/name/cedric" });
+    const req = new MockReq({ method: "POST", url: "/name/bob" });
     req.write({
       data: "works",
     });

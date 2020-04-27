@@ -25,6 +25,7 @@ const executeHandler = (
               sendResponse(res, {
                 response: errorHandlerError.message,
                 status: 500,
+                contentType: ContentType.TEXT_PLAIN,
               }),
             // If errorHandler successful
             (errorHandlerSuccess) => sendResponse(res, errorHandlerSuccess)

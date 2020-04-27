@@ -34,9 +34,14 @@ const myHandler = omicron.r("/myhandler")("GET")((req, res) => "My Handler")(
   () => "Error Handler"
 );
 
+const indexHandler = omicron.r("/")("GET")(() => "It works!")(
+  () => "It doesn't work!"
+);
+
 const listener = omicron.httpListener({
   // Here you can add all your routes that should be exposed
   routes: [
+    indexHandler,
     myHandler,
     getHandler,
     allHandler,

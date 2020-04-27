@@ -105,7 +105,7 @@ describe("Match route", () => {
 
   test("matches route with correct RouteHandler => GET /name/:name route", () => {
     // given
-    const req = new MockReq({ method: "GET", url: "/name/cedric" });
+    const req = new MockReq({ method: "GET", url: "/name/bob" });
     req.end();
 
     // when
@@ -130,7 +130,7 @@ describe("Match route", () => {
 
   test("matches route with correct RouteHandler => POST /name/:name route", () => {
     // given
-    const req = new MockReq({ method: "POST", url: "/name/cedric" });
+    const req = new MockReq({ method: "POST", url: "/name/bob" });
     req.end();
 
     // when

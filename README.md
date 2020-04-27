@@ -10,9 +10,7 @@ Please see `/example/example.ts` for an example setup.
 
 ## Usage
 
-    npm i --save @zaetrik/omicron fp-ts
-
-`fp-ts` is needed in order to work properly with `omicron`.
+    npm i --save @zaetrik/omicron
 
 ## Documentation
 
@@ -23,8 +21,8 @@ Start a server that handles a `GET` request to `/` =>
     const indexHandler = r
         ("/")
         ("GET")
-        (() => ({ response: "Hello 👋" }))
-        ((res, res, error) => ({ response: `Oops! An error occured => ${error.message}` }));
+        (() => "Hello 👋")
+        ((res, res, error) => `Oops! An error occured => ${error.message}`);
 
     const listener = omicron.httpListener({
         // Here you can add all your routes that should be exposed
@@ -51,16 +49,15 @@ Start a server that handles a `GET` request to `/` =>
 Route handlers can be created like this =>
 
     import * as omicron from "@zaetrik/omicron";
-    import * as TE from "fp-ts/lib/TaskEither";
 
     const handler = omicron.r
-        ("/") // Your path 
+        ("/") // Your path
         ("*") // HTTP method // * => Catch-all handler
         ((req, res) => "My Handler") // Handler function
         ((req, res, err) => err.message) // Error handler function
 
     const getHandler = omicron.get
-        ("/get") 
+        ("/get")
         ((req, res) => "My GET Handler")
         ((req, res, err) => err.message)
 
@@ -68,7 +65,6 @@ Route handlers can be created like this =>
         ("/post")
         ((req, res) => "My POST Handler")
         ((req, res, err) => err.message)
-
 
 For the other HTTP methods there are also handlers available.
 

@@ -2,8 +2,10 @@ import { Readable } from "stream";
 import { HttpRequest, RequestBody } from "../../http.interface";
 
 // @TODO => Rewrite to return monad
-export const getBody = async (req: HttpRequest): Promise<RequestBody> =>
-  JSON.parse((await fromReadableStream(req)).toString());
+export const getBody = async (req: HttpRequest): Promise<RequestBody> => {
+  const data = (await fromReadableStream(req)).toString();
+  return data ? JSON.parse(data) : {};
+};
 
 const fromReadableStream = (stream: Readable): Promise<Buffer[]> => {
   stream.pause();
