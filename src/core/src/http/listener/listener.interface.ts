@@ -9,7 +9,7 @@ export interface HttpListener {
   (req: IncomingMessage, res: OutgoingMessage): void;
 }
 
-export interface ListenerConfig<T = any> {
+export interface ListenerConfig {
   routes: RouteHandler[];
 }
 

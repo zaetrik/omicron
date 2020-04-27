@@ -2,11 +2,7 @@ import { matchRoute } from "../router.matcher";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
-import {
-  HttpRequest,
-  HttpResponse,
-  ContentType,
-} from "../../../http.interface";
+import { HttpRequest, HttpResponse, ContentType } from "../../../http.interface";
 import { RouteHandler } from "../router.interface";
 import { pipe } from "fp-ts/lib/pipeable";
 import { resolveRequest } from "../router.resolver";
@@ -24,10 +20,7 @@ describe("Resolves route", () => {
         E.toError
       ),
     errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
-      TE.tryCatch(
-        async () => ({ response: `An error occured: ${err.message}` }),
-        E.toError
-      ),
+      TE.tryCatch(async () => ({ response: `An error occured: ${err.message}` }), E.toError),
   };
 
   test("resolves route with correct RouteHandler => POST /name/:name route", async () => {

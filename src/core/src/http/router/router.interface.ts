@@ -1,12 +1,5 @@
-import {
-  RouteResponse,
-  HttpMethod,
-  HttpRequest,
-  HttpResponse,
-  HttpMethodType,
-} from "../../http.interface";
+import { RouteResponse, HttpMethod, HttpRequest, HttpResponse } from "../../http.interface";
 import { TaskEither } from "fp-ts/lib/TaskEither";
-import { Task } from "fp-ts/lib/Task";
 
 export interface RouteHandler {
   path: string;

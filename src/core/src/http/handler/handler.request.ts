@@ -1,10 +1,4 @@
-import {
-  HttpMethod,
-  HttpRequest,
-  HttpResponse,
-  RouteResponse,
-  ContentType,
-} from "../../http.interface";
+import { HttpMethod, HttpRequest, HttpResponse, RouteResponse, ContentType } from "../../http.interface";
 import { createRouteHandlerFn } from "./handler.util";
 import { RouteHandler } from "../router/router.interface";
 
@@ -27,11 +21,7 @@ export const r = (path: string) => (method: HttpMethod) => (
     })
   ),
   errorHandler: createRouteHandlerFn(
-    async (
-      req: HttpRequest,
-      res: HttpResponse,
-      error: Error
-    ): Promise<RouteResponse> => ({
+    async (req: HttpRequest, res: HttpResponse, error: Error): Promise<RouteResponse> => ({
       status: errorStatus || 500,
       response: await errorHandler(req, res, error),
       contentType: errorContentType,

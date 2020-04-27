@@ -7,7 +7,7 @@ export const getQuery = (reqUrl: string | undefined | null): QueryParameters =>
   pipe(
     O.fromNullable(reqUrl),
     O.map(getQueryParams),
-    O.getOrElse(() => ({}))
+    O.getOrElse(() => ({} as QueryParameters))
   );
 
 const getQueryParams = (reqUrl: string) => parse(reqUrl, true).query;

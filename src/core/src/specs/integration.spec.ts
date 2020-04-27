@@ -23,25 +23,20 @@ describe("Integration Test", () => {
       listener: omicron.httpListener({
         routes: handlers,
       }),
-      port: 3000,
+      port: 4000,
     });
     server = await app();
   };
 
   test("Server is reachable", async (done) => {
     // given
-    const handler = omicron.r("/")("GET")(
-      () => "It works!",
-      200,
-      omicron.ContentType.TEXT_PLAIN
-    )(() => "It doesn't work!");
+    const handler = omicron.r("/")("GET")(() => "It works!", 200, omicron.ContentType.TEXT_PLAIN)(
+      () => "It doesn't work!"
+    );
 
     await getServerInstance([handler]);
 
-    await supertest(server)
-      .get("/")
-      .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
-      .expect(200);
+    await supertest(server).get("/").expect("Content-Type", omicron.ContentType.TEXT_PLAIN).expect(200);
 
     done();
   });
@@ -515,11 +510,7 @@ describe("Integration Test", () => {
 
   test("Route matcher resolves to correct route", async (done) => {
     // given
-    const handlerIndex = omicron.get("/")(
-      (req) => "handlerIndex",
-      200,
-      omicron.ContentType.TEXT_PLAIN
-    )(
+    const handlerIndex = omicron.get("/")((req) => "handlerIndex", 200, omicron.ContentType.TEXT_PLAIN)(
       (req, res, error) => "It does not work!",
       500,
       omicron.ContentType.TEXT_PLAIN
@@ -529,27 +520,15 @@ describe("Integration Test", () => {
       (req) => "handlerPathParamsGet",
       200,
       omicron.ContentType.TEXT_PLAIN
-    )(
-      (req, res, error) => "It does not work!",
-      500,
-      omicron.ContentType.TEXT_PLAIN
-    );
+    )((req, res, error) => "It does not work!", 500, omicron.ContentType.TEXT_PLAIN);
 
     const handlerPathParamsPost = omicron.post("/user/:name")(
       (req) => "handlerPathParamsPost",
       200,
       omicron.ContentType.TEXT_PLAIN
-    )(
-      (req, res, error) => "It does not work!",
-      500,
-      omicron.ContentType.TEXT_PLAIN
-    );
+    )((req, res, error) => "It does not work!", 500, omicron.ContentType.TEXT_PLAIN);
 
-    await getServerInstance([
-      handlerIndex,
-      handlerPathParamsGet,
-      handlerPathParamsPost,
-    ]);
+    await getServerInstance([handlerIndex, handlerPathParamsGet, handlerPathParamsPost]);
 
     await supertest(server)
       .post("/user/bob")

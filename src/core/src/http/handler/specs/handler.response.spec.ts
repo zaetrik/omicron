@@ -1,12 +1,6 @@
-import {
-  HttpResponse,
-  HttpRequest,
-  RouteResponse,
-} from "../../../http.interface";
-import { createRouteHandlerFn } from "../handler.util";
+import { HttpResponse, HttpRequest, RouteResponse } from "../../../http.interface";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
-import * as O from "fp-ts/lib/Option";
 import { handleResponse } from "../handler.response";
 import { RouteHandler } from "../../router/router.interface";
 const MockReq = require("mock-req");
@@ -18,15 +12,9 @@ const getRouteHandler = (
   path: "/",
   method: "GET",
   handler: (req: HttpRequest, res: HttpResponse) =>
-    TE.tryCatch(
-      async (): Promise<RouteResponse> => handler(req, res),
-      E.toError
-    ),
+    TE.tryCatch(async (): Promise<RouteResponse> => handler(req, res), E.toError),
   errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
-    TE.tryCatch(
-      async (): Promise<RouteResponse> => handler(req, res, err),
-      E.toError
-    ),
+    TE.tryCatch(async (): Promise<RouteResponse> => handler(req, res, err), E.toError),
 });
 
 describe("Handle response", () => {
@@ -43,9 +31,9 @@ describe("Handle response", () => {
     const res = new MockRes(finish);
 
     // when
-    handleResponse(getRouteHandler(handler).handler)(
-      getRouteHandler(handler).errorHandler
-    )(req as HttpRequest)(res as HttpResponse);
+    handleResponse(getRouteHandler(handler).handler)(getRouteHandler(handler).errorHandler)(
+      req as HttpRequest
+    )(res as HttpResponse);
 
     // then
     function finish() {
@@ -70,9 +58,9 @@ describe("Handle response", () => {
     const res = new MockRes(finish);
 
     // when
-    handleResponse(getRouteHandler(handler).handler)(
-      getRouteHandler(errorHandler).errorHandler
-    )(req as HttpRequest)(res as HttpResponse);
+    handleResponse(getRouteHandler(handler).handler)(getRouteHandler(errorHandler).errorHandler)(
+      req as HttpRequest
+    )(res as HttpResponse);
 
     // then
     function finish() {
@@ -98,9 +86,9 @@ describe("Handle response", () => {
     const res = new MockRes(finish);
 
     // when
-    handleResponse(getRouteHandler(handler).handler)(
-      getRouteHandler(errorHandler).errorHandler
-    )(req as HttpRequest)(res as HttpResponse);
+    handleResponse(getRouteHandler(handler).handler)(getRouteHandler(errorHandler).errorHandler)(
+      req as HttpRequest
+    )(res as HttpResponse);
 
     // then
     function finish() {

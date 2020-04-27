@@ -2,11 +2,7 @@ import { setupRouting } from "../router.setup";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import { RouteHandler } from "../router.interface";
-import {
-  HttpRequest,
-  HttpResponse,
-  ContentType,
-} from "../../../http.interface";
+import { HttpRequest, HttpResponse, ContentType } from "../../../http.interface";
 
 describe("Get request params", () => {
   const routeHandlers: RouteHandler[] = [
@@ -21,10 +17,7 @@ describe("Get request params", () => {
           E.toError
         ),
       errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
-        TE.tryCatch(
-          async () => ({ response: `An error occured: ${err.message}` }),
-          E.toError
-        ),
+        TE.tryCatch(async () => ({ response: `An error occured: ${err.message}` }), E.toError),
     },
     {
       path: "/name/:name",
@@ -39,10 +32,7 @@ describe("Get request params", () => {
           E.toError
         ),
       errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
-        TE.tryCatch(
-          async () => ({ response: `An error occured: ${err.message}` }),
-          E.toError
-        ),
+        TE.tryCatch(async () => ({ response: `An error occured: ${err.message}` }), E.toError),
     },
     {
       path: "/name/:name",
@@ -57,10 +47,7 @@ describe("Get request params", () => {
           E.toError
         ),
       errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
-        TE.tryCatch(
-          async () => ({ response: `An error occured: ${err.message}` }),
-          E.toError
-        ),
+        TE.tryCatch(async () => ({ response: `An error occured: ${err.message}` }), E.toError),
     },
   ];
 

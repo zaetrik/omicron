@@ -1,9 +1,3 @@
-import {
-  HttpResponse,
-  HttpRequest,
-  RouteResponse,
-} from "../../../http.interface";
-import { r } from "../handler.request";
 import { errorHandler } from "../handler.error";
 
 describe("Error handler", () => {

@@ -1,8 +1,4 @@
-import {
-  HttpResponse,
-  HttpRequest,
-  RouteResponse,
-} from "../../../http.interface";
+import { HttpResponse, HttpRequest, RouteResponse } from "../../../http.interface";
 import * as methods from "../handler.methods";
 
 describe("Handler request methods", () => {

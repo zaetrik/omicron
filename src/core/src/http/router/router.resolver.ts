@@ -1,7 +1,8 @@
 import { RouteHandler, RouteHandlerFn } from "./router.interface";
-import { HttpRequest, RouteResponse, HttpResponse } from "../../http.interface";
+import { HttpRequest, RequestBody } from "../../http.interface";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as O from "fp-ts/lib/Option";
+import * as E from "fp-ts/lib/Either";
 import { getPathParams } from "./router.params";
 import { getQuery } from "./router.query";
 import { getBody } from "./router.body";
@@ -30,7 +31,10 @@ export const resolveRequest = (req: HttpRequest) => (
             ...req,
             params: getPathParams(handler.path, urlPath),
             query: getQuery(req.url),
-            body: await getBody(req),
+            body: pipe(
+              await getBody(req),
+              E.getOrElse((e) => ({} as RequestBody))
+            ),
           },
         } as {
           routeHandler: RouteHandlerFn;

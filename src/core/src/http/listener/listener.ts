@@ -6,17 +6,10 @@ import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
 import { errorHandler as defaultErrorHandler } from "../handler/handler.error";
 import { handleResponse } from "../handler/handler.response";
-import {
-  ListenerConfig,
-  ListenerHandler,
-  HttpListenerConfig,
-  HttpListener,
-} from "./listener.interface";
+import { ListenerConfig, ListenerHandler, HttpListenerConfig, HttpListener } from "./listener.interface";
 import { resolveRequest } from "../router/router.resolver";
 
-const createListener = <T extends ListenerConfig, U extends ListenerHandler>(
-  config: ListenerConfig
-) => {
+const createListener = <T extends ListenerConfig, U extends ListenerHandler>(config: ListenerConfig) => {
   const { routes = [] } = config ?? {};
 
   const routing = setupRouting(routes);

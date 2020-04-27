@@ -1,5 +1,8 @@
-import { HttpRequest } from "../../../http.interface";
+import { HttpRequest, RequestBody } from "../../../http.interface";
 import { getBody } from "../router.body";
+import { pipe } from "fp-ts/lib/pipeable";
+import * as E from "fp-ts/lib/Either";
+
 const MockReq = require("mock-req");
 
 describe("Get request body", () => {
@@ -16,6 +19,12 @@ describe("Get request body", () => {
 
     // then
     expect(body).toBeDefined();
-    expect(body.data).toEqual("works");
+    expect(body._tag).toEqual("Right");
+    expect(
+      pipe(
+        body,
+        E.getOrElse((e) => ({ data: "" } as RequestBody))
+      ).data
+    ).toEqual("works");
   });
 });

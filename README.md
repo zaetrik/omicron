@@ -6,7 +6,7 @@ Omicron is a small library to build HTTP servers in Node.js.
 
 Omicron uses a more functional approach compared to other solutions, e.g. the functions to create route handlers are curried by default which can be useful for function composition.
 
-Omicron is compeltely written in TypeScript and has pretty good typing, which should help you to be more productive.
+Omicron is written in TypeScript and has pretty good typing, which should help you to be more productive.
 
 Please see `/example/example.ts` for an example setup.
 
@@ -23,7 +23,7 @@ Start a server that handles a `GET` request to `/` =>
     const indexHandler = r
         ("/")
         ("GET")
-        (() => "Hello 👋")
+        ((req, res) => "Hello 👋")
         ((res, res, error) => `Oops! An error occured => ${error.message}`);
 
     const listener = omicron.httpListener({
@@ -67,6 +67,12 @@ Route handlers can be created like this =>
         ("/post")
         ((req, res) => "My POST Handler")
         ((req, res, err) => err.message)
+
+    const handlerWithCustomOptions = omicron.r
+        ("/custom")
+        ("GET")
+        ((req, res) => "My Handler", 200, omicron.ContentType.TEXT_PLAIN) // You can define the status & content type
+        ((req, res, err) => err.message, 500, omicron.ContentType.TEXT_PLAIN)
 
 For the other HTTP methods there are also handlers available.
 

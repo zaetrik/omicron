@@ -4,9 +4,7 @@ import { HttpRequest, HttpMethod } from "../../http.interface";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as O from "fp-ts/lib/Option";
 
-export const matchRoute = (routeHandlers: RouteHandler[]) => (
-  req: HttpRequest
-): O.Option<RouteHandler> => {
+export const matchRoute = (routeHandlers: RouteHandler[]) => (req: HttpRequest): O.Option<RouteHandler> => {
   // split at query => path-to-regexp cannot handle it
   const [urlPath, _] = req.url.split("?");
   return pipe(
@@ -22,7 +20,5 @@ export const matchRoute = (routeHandlers: RouteHandler[]) => (
   );
 };
 
-const matchMethod = (
-  reqMethod: HttpMethod,
-  handlerMethod: HttpMethod
-): boolean => handlerMethod === reqMethod || handlerMethod === "*";
+const matchMethod = (reqMethod: HttpMethod, handlerMethod: HttpMethod): boolean =>
+  handlerMethod === reqMethod || handlerMethod === "*";

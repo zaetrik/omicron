@@ -1,4 +1,4 @@
-import { HttpRequest, HttpResponse, ContentType } from "../../http.interface";
+import { HttpRequest, HttpResponse, ContentType, RouteResponse } from "../../http.interface";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/pipeable";
 import { RouteHandlerFn } from "../router/router.interface";
@@ -22,17 +22,17 @@ const executeHandler = (
           E.fold(
             // If error in errorHandler =>
             (errorHandlerError) =>
-              sendResponse(res, {
+              sendResponse(res)({
                 response: errorHandlerError.message,
                 status: 500,
                 contentType: ContentType.TEXT_PLAIN,
               }),
             // If errorHandler successful
-            (errorHandlerSuccess) => sendResponse(res, errorHandlerSuccess)
+            (errorHandlerSuccess) => sendResponse(res)(errorHandlerSuccess)
           )
         ),
       // If routeHandler successful =>
-      async (result) => sendResponse(res, result)
+      async (result) => sendResponse(res)(result)
     )
   );
 
@@ -49,10 +49,11 @@ const transformResponse = (response: any): string => {
   }
 };
 
-const sendResponse = (
-  res: HttpResponse,
-  { status = 200, response = "", contentType = ContentType.APPLICATION_JSON }
-) => {
+const sendResponse = (res: HttpResponse) => ({
+  status = 200,
+  response = "",
+  contentType = ContentType.APPLICATION_JSON,
+}: RouteResponse) => {
   res.writeHead(status, {
     "Content-Type": contentType,
   });
@@ -60,8 +61,8 @@ const sendResponse = (
   res.end(transformResponse(response));
 };
 
-export const handleResponse = (routeHandler: RouteHandlerFn) => (
-  errorHandler: RouteHandlerFn
-) => (req: HttpRequest) => (res: HttpResponse) => {
+export const handleResponse = (routeHandler: RouteHandlerFn) => (errorHandler: RouteHandlerFn) => (
+  req: HttpRequest
+) => (res: HttpResponse) => {
   executeHandler(req, res, routeHandler, errorHandler)();
 };
