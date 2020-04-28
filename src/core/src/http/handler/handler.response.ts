@@ -53,8 +53,7 @@ const executeHandler = (
                 (result as RouteResponse).status,
                 (result as RouteResponse).headers
               )
-            : // How can we pass the status from the parameters of the route handler functions
-              toRouteResponse(result)
+            : toRouteResponse(result)
         )
     )
   );
