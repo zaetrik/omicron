@@ -1,11 +1,5 @@
 import http from "http";
 
-export interface RouteResponse {
-  status?: number;
-  response: any;
-  contentType?: ContentType;
-}
-
 export interface PathParameters {
   [key: string]: any;
 }

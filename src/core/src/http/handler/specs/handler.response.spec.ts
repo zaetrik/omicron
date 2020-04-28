@@ -1,8 +1,8 @@
-import { HttpResponse, HttpRequest, RouteResponse } from "../../../http.interface";
+import { HttpResponse, HttpRequest } from "../../../http.interface";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import { handleResponse } from "../handler.response";
-import { RouteHandler } from "../../router/router.interface";
+import { RouteHandler, RouteResponse } from "../../router/router.interface";
 const MockReq = require("mock-req");
 const MockRes = require("mock-res");
 
@@ -23,6 +23,8 @@ describe("Handle response", () => {
     const handler = (req: HttpRequest, res: HttpResponse, err?: Error) =>
       ({
         response: "data",
+        status: 200,
+        headers: {},
       } as RouteResponse);
 
     const req = new MockReq({ method: "GET", url: "/" });
@@ -50,7 +52,7 @@ describe("Handle response", () => {
       throw new Error("My Error");
     };
     const errorHandler = (req: HttpRequest, res: HttpResponse, err?: Error) =>
-      ({ response: err.message, status: 500 } as RouteResponse);
+      ({ response: err.message, status: 500, headers: {} } as RouteResponse);
 
     const req = new MockReq({ method: "GET", url: "/" });
     req.end();

@@ -1,13 +1,11 @@
-import { HttpResponse, HttpRequest, RouteResponse } from "../../../http.interface";
+import { HttpResponse, HttpRequest } from "../../../http.interface";
 import { r } from "../handler.request";
+import { RouteResponse } from "../../router/router.interface";
 
 describe("Handler request", () => {
   test("creates a route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) => "data";
 
     // when
     const routeHandler = r("/")("GET")(handler)(handler);

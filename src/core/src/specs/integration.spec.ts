@@ -30,9 +30,11 @@ describe("Integration Test", () => {
 
   test("Server is reachable", async (done) => {
     // given
-    const handler = omicron.r("/")("GET")(() => "It works!", 200, omicron.ContentType.TEXT_PLAIN)(
-      () => "It doesn't work!"
-    );
+    const handler = omicron.r("/")("GET")(() => ({
+      response: "It works!",
+      status: 200,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -43,11 +45,11 @@ describe("Integration Test", () => {
 
   test("Handles request made with r()", async (done) => {
     // given
-    const handler = omicron.r("/name/:name")("POST")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
-    )(() => "It doesn't work!");
+    const handler = omicron.r("/name/:name")("POST")((req: omicron.HttpRequest) => ({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -73,11 +75,11 @@ describe("Integration Test", () => {
 
   test("Handles request made with get()", async (done) => {
     // given
-    const handler = omicron.get("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
-    )(() => "It doesn't work!");
+    const handler = omicron.get("/name/:name")((req: omicron.HttpRequest) => ({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -103,11 +105,11 @@ describe("Integration Test", () => {
 
   test("Handles request made with post()", async (done) => {
     // given
-    const handler = omicron.post("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
-    )(() => "It doesn't work!");
+    const handler = omicron.post("/name/:name")((req: omicron.HttpRequest) => ({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -133,11 +135,11 @@ describe("Integration Test", () => {
 
   test("Handles request made with put()", async (done) => {
     // given
-    const handler = omicron.put("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
-    )(() => "It doesn't work!");
+    const handler = omicron.put("/name/:name")((req: omicron.HttpRequest) => ({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -163,11 +165,11 @@ describe("Integration Test", () => {
 
   test("Handles request made with dlt()", async (done) => {
     // given
-    const handler = omicron.dlt("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
-    )(() => "It doesn't work!");
+    const handler = omicron.dlt("/name/:name")((req: omicron.HttpRequest) => ({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -193,11 +195,11 @@ describe("Integration Test", () => {
 
   test("Handles request made with all()", async (done) => {
     // given
-    const handler = omicron.all("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
-    )(() => "It doesn't work!");
+    const handler = omicron.all("/name/:name")((req: omicron.HttpRequest) => ({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -308,11 +310,11 @@ describe("Integration Test", () => {
 
   test("Handles request made with options()", async (done) => {
     // given
-    const handler = omicron.options("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
-    )(() => "It doesn't work!");
+    const handler = omicron.options("/name/:name")((req: omicron.HttpRequest) => ({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -338,11 +340,11 @@ describe("Integration Test", () => {
 
   test("Handles request made with patch()", async (done) => {
     // given
-    const handler = omicron.patch("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
-    )(() => "It doesn't work!");
+    const handler = omicron.patch("/name/:name")((req: omicron.HttpRequest) => ({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -369,9 +371,8 @@ describe("Integration Test", () => {
   /*test("Handles request made with head()", async (done) => {
     // given
     const handler = omicron.head("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
+      (req: omicron.HttpRequest) => ({ body: req.body, params: req.params, query: req.query }),
+      
     )(() => "It doesn't work!");
 
     await getServerInstance([handler]);
@@ -398,11 +399,11 @@ describe("Integration Test", () => {
 
   test("Handles request made with TRACE()", async (done) => {
     // given
-    const handler = omicron.trace("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
-    )(() => "It doesn't work!");
+    const handler = omicron.trace("/name/:name")((req: omicron.HttpRequest) => ({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    }))(() => "It doesn't work!");
 
     await getServerInstance([handler]);
 
@@ -429,9 +430,8 @@ describe("Integration Test", () => {
   /*test("Handles request made with connect()", async (done) => {
     // given
     const handler = omicron.connect("/name/:name")(
-      (req) => ({ body: req.body, params: req.params, query: req.query }),
-      200,
-      omicron.ContentType.APPLICATION_JSON
+      (req: omicron.HttpRequest) => ({ body: req.body, params: req.params, query: req.query }),
+      
     )(() => "It doesn't work!");
 
     await getServerInstance([handler]);
@@ -458,9 +458,13 @@ describe("Integration Test", () => {
 
   test("Handles request that fails", async (done) => {
     // given
-    const handler = omicron.get("/")((req) => {
+    const handler = omicron.get("/")((req: omicron.HttpRequest) => {
       throw new Error("We threw an error");
-    })((req, res, error) => error.message, 500, omicron.ContentType.TEXT_PLAIN);
+    })((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => ({
+      response: error.message,
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
 
     await getServerInstance([handler]);
 
@@ -481,15 +485,11 @@ describe("Integration Test", () => {
 
   test("Handles request whose error handler also fails", async (done) => {
     // given
-    const handler = omicron.get("/")((req) => {
+    const handler = omicron.get("/")((req: omicron.HttpRequest) => {
       throw new Error("We threw an error");
-    })(
-      (req, res, error) => {
-        throw new Error("We threw a second error");
-      },
-      500,
-      omicron.ContentType.TEXT_PLAIN
-    );
+    })((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => {
+      throw new Error("We threw a second error");
+    });
 
     await getServerInstance([handler]);
 
@@ -510,23 +510,35 @@ describe("Integration Test", () => {
 
   test("Route matcher resolves to correct route", async (done) => {
     // given
-    const handlerIndex = omicron.get("/")((req) => "handlerIndex", 200, omicron.ContentType.TEXT_PLAIN)(
-      (req, res, error) => "It does not work!",
-      500,
-      omicron.ContentType.TEXT_PLAIN
-    );
+    const handlerIndex = omicron.get("/")((req: omicron.HttpRequest) => ({
+      response: "handlerIndex",
+      status: 200,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }))((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => ({
+      response: "It does not work!",
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
 
-    const handlerPathParamsGet = omicron.get("/user/:name")(
-      (req) => "handlerPathParamsGet",
-      200,
-      omicron.ContentType.TEXT_PLAIN
-    )((req, res, error) => "It does not work!", 500, omicron.ContentType.TEXT_PLAIN);
+    const handlerPathParamsGet = omicron.get("/user/:name")((req: omicron.HttpRequest) => ({
+      response: "handlerPathParamsGet",
+      status: 200,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }))((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => ({
+      response: "It does not work!",
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
 
-    const handlerPathParamsPost = omicron.post("/user/:name")(
-      (req) => "handlerPathParamsPost",
-      200,
-      omicron.ContentType.TEXT_PLAIN
-    )((req, res, error) => "It does not work!", 500, omicron.ContentType.TEXT_PLAIN);
+    const handlerPathParamsPost = omicron.post("/user/:name")((req: omicron.HttpRequest) => ({
+      response: "handlerPathParamsPost",
+      status: 200,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }))((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => ({
+      response: "It does not work!",
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
 
     await getServerInstance([handlerIndex, handlerPathParamsGet, handlerPathParamsPost]);
 

@@ -1,8 +1,9 @@
-import { HttpRequest, HttpResponse, ContentType, RouteResponse } from "../../http.interface";
+import { HttpRequest, HttpResponse, ContentType } from "../../http.interface";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/pipeable";
-import { RouteHandlerFn } from "../router/router.interface";
+import { RouteHandlerFn, RouteResponse } from "../router/router.interface";
 import { IO } from "fp-ts/lib/IO";
+import { isRouteResponse, toRouteResponse, defaultHeaders } from "./handler.util";
 
 const executeHandler = (
   req: HttpRequest,
@@ -25,14 +26,36 @@ const executeHandler = (
               sendResponse(res)({
                 response: errorHandlerError.message,
                 status: 500,
-                contentType: ContentType.TEXT_PLAIN,
+                headers: { "Content-Type": ContentType.TEXT_PLAIN },
               }),
             // If errorHandler successful
-            (errorHandlerSuccess) => sendResponse(res)(errorHandlerSuccess)
+
+            (errorHandlerSuccess) =>
+              sendResponse(res)(
+                isRouteResponse(errorHandlerSuccess)
+                  ? // We do toRouteResponse again to apply the default headers if {} is passed for the headers
+                    toRouteResponse(
+                      (errorHandlerSuccess as RouteResponse).response,
+                      (errorHandlerSuccess as RouteResponse).status,
+                      (errorHandlerSuccess as RouteResponse).headers
+                    )
+                  : toRouteResponse(errorHandlerSuccess, 500)
+              )
           )
         ),
       // If routeHandler successful =>
-      async (result) => sendResponse(res)(result)
+      async (result) =>
+        sendResponse(res)(
+          isRouteResponse(result)
+            ? // We do toRouteResponse again to apply the default headers if {} is passed for the headers
+              toRouteResponse(
+                (result as RouteResponse).response,
+                (result as RouteResponse).status,
+                (result as RouteResponse).headers
+              )
+            : // How can we pass the status from the parameters of the route handler functions
+              toRouteResponse(result)
+        )
     )
   );
 
@@ -52,11 +75,9 @@ const transformResponse = (response: any): string => {
 const sendResponse = (res: HttpResponse) => ({
   status = 200,
   response = "",
-  contentType = ContentType.APPLICATION_JSON,
+  headers = defaultHeaders,
 }: RouteResponse) => {
-  res.writeHead(status, {
-    "Content-Type": contentType,
-  });
+  res.writeHead(status, headers);
 
   res.end(transformResponse(response));
 };

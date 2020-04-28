@@ -68,15 +68,25 @@ Route handlers can be created like this =>
         ((req, res) => "My POST Handler")
         ((req, res, err) => err.message)
 
+    // To return a response with custom options you have to return something of type RouteResponse
+    interface RouteResponse {
+        response: any;
+        status: number;
+        headers: RouteResponseHeaders;
+    }
+    // If you would like to just return the default headers set headers to {}
+
     const handlerWithCustomOptions = omicron.r
         ("/custom")
         ("GET")
-        ((req, res) => "My Handler", 200, omicron.ContentType.TEXT_PLAIN) // You can define the status & content type
-        ((req, res, err) => err.message, 500, omicron.ContentType.TEXT_PLAIN)
+        ((req, res) =>
+            ({
+                response: "My Handler Response", // Data that should be returned as a response
+                status: 200, // Custom status code
+                headers: { "Set-Cookie": ["cookie=true"] } // Pass in all your custom headers
+            })
+        ((req, res, err) => err.message)
 
 For the other HTTP methods there are also handlers available.
 
-You have to define two handlers. One normal handler & one error handler.
-The handler functions have the following type signature
-
-    type RouteHandlerFn = (req: HttpRequest, res: HttpResponse, error?: Error) => TaskEither<Error, RouteResponse>;
+In order for your route to work you have to define two handlers. One normal handler & one error handler. This forces you to handle the possible error scenario on every route.

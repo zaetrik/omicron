@@ -8,18 +8,12 @@ import { pipe } from "fp-ts/lib/pipeable";
 const MockReq = require("mock-req");
 
 describe("Match route", () => {
-  const fallbackHandler = {
+  const fallbackHandler: RouteHandler = {
     path: "/fallback",
     method: "GET",
-    handler: (req: HttpRequest, res: HttpResponse) =>
-      TE.tryCatch(
-        async () => ({
-          response: "Fallback Handler",
-        }),
-        E.toError
-      ),
+    handler: (req: HttpRequest, res: HttpResponse) => TE.tryCatch(async () => "Fallback Handler", E.toError),
     errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
-      TE.tryCatch(async () => ({ response: `An error occured: ${err.message}` }), E.toError),
+      TE.tryCatch(async () => `An error occured: ${err.message}`, E.toError),
   };
 
   const routeHandlers: RouteHandler[] = [

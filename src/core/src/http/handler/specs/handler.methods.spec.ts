@@ -1,5 +1,6 @@
-import { HttpResponse, HttpRequest, RouteResponse } from "../../../http.interface";
+import { HttpResponse, HttpRequest } from "../../../http.interface";
 import * as methods from "../handler.methods";
+import { RouteResponse } from "../../router/router.interface";
 
 describe("Handler request methods", () => {
   test("creates a GET route handler", () => {

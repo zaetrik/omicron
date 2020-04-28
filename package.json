@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "fp-ts": "^2.5.3",
+    "io-ts": "^2.2.1",
     "path-to-regexp": "^6.1.0"
   }
 }
