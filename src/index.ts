@@ -3,6 +3,7 @@ export * from "./core/src/http.interface";
 export * from "./core/src/http/router/router.interface";
 export * from "./core/src/http/server/server.interface";
 export * from "./core/src/http/listener/listener.interface";
+export * from "./middleware/src/middleware.interface";
 
 // Server
 export { httpListener } from "./core/src/http/listener/listener";
@@ -16,3 +17,6 @@ export { r } from "./core/src/http/handler/handler.request";
 
 // Util
 export * from "./core/src/http/handler/handler.util";
+
+// Middleware
+export * from "./middleware/src/useMiddleware";

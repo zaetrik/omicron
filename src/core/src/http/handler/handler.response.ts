@@ -13,13 +13,13 @@ const executeHandler = (
 ): IO<void> => async () =>
   await pipe(
     // Here we execute our route handler and wrap it inside an Either<Error, RouteResponse>
-    await pipe(routeHandler(req, res))(),
+    await pipe(routeHandler(req))(),
     E.fold(
       // If error in our route handler =>
       async (err) =>
         pipe(
           // Execute errorHandler and wrap it inside an Either<Error, RouteResponse>
-          await pipe(errorHandler(req, res, err))(),
+          await pipe(errorHandler(req, err))(),
           E.fold(
             // If error in errorHandler =>
             (errorHandlerError) =>

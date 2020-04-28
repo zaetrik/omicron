@@ -2,7 +2,7 @@ import { matchRoute } from "../router.matcher";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
-import { HttpRequest, HttpResponse, ContentType } from "../../../http.interface";
+import { HttpRequest, ContentType } from "../../../http.interface";
 import { RouteHandler } from "../router.interface";
 import { pipe } from "fp-ts/lib/pipeable";
 const MockReq = require("mock-req");
@@ -11,8 +11,8 @@ describe("Match route", () => {
   const fallbackHandler: RouteHandler = {
     path: "/fallback",
     method: "GET",
-    handler: (req: HttpRequest, res: HttpResponse) => TE.tryCatch(async () => "Fallback Handler", E.toError),
-    errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
+    handler: (req: HttpRequest) => TE.tryCatch(async () => "Fallback Handler", E.toError),
+    errorHandler: (req: HttpRequest, err: Error) =>
       TE.tryCatch(async () => `An error occured: ${err.message}`, E.toError),
   };
 
@@ -20,20 +20,20 @@ describe("Match route", () => {
     {
       path: "/",
       method: "GET",
-      handler: (req: HttpRequest, res: HttpResponse) =>
+      handler: (req: HttpRequest) =>
         TE.tryCatch(
           async () => ({
             response: "Handler",
           }),
           E.toError
         ),
-      errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
+      errorHandler: (req: HttpRequest, err: Error) =>
         TE.tryCatch(async () => ({ response: `An error occured: ${err.message}` }), E.toError),
     },
     {
       path: "/name/:name",
       method: "GET",
-      handler: (req: HttpRequest, res: HttpResponse) =>
+      handler: (req: HttpRequest) =>
         TE.tryCatch(
           async () => ({
             response: "Handler",
@@ -42,13 +42,13 @@ describe("Match route", () => {
           }),
           E.toError
         ),
-      errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
+      errorHandler: (req: HttpRequest, err: Error) =>
         TE.tryCatch(async () => ({ response: `An error occured: ${err.message}` }), E.toError),
     },
     {
       path: "/name/:name",
       method: "POST",
-      handler: (req: HttpRequest, res: HttpResponse) =>
+      handler: (req: HttpRequest) =>
         TE.tryCatch(
           async () => ({
             response: "Handler",
@@ -57,7 +57,7 @@ describe("Match route", () => {
           }),
           E.toError
         ),
-      errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
+      errorHandler: (req: HttpRequest, err: Error) =>
         TE.tryCatch(async () => ({ response: `An error occured: ${err.message}` }), E.toError),
     },
   ];

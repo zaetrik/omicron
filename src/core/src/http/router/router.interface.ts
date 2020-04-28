@@ -1,4 +1,4 @@
-import { HttpMethod, HttpRequest, HttpResponse } from "../../http.interface";
+import { HttpMethod, HttpRequest } from "../../http.interface";
 import { TaskEither } from "fp-ts/lib/TaskEither";
 import * as io from "io-ts";
 
@@ -64,8 +64,4 @@ export interface RouteHandler {
   errorHandler: RouteHandlerFn;
 }
 
-export type RouteHandlerFn = (
-  req: HttpRequest,
-  res: HttpResponse,
-  error?: Error
-) => TaskEither<Error, RouteResponse | unknown>;
+export type RouteHandlerFn = (req: HttpRequest, error?: Error) => TaskEither<Error, RouteResponse | unknown>;

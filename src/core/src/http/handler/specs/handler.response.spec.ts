@@ -6,21 +6,18 @@ import { RouteHandler, RouteResponse } from "../../router/router.interface";
 const MockReq = require("mock-req");
 const MockRes = require("mock-res");
 
-const getRouteHandler = (
-  handler: (req: HttpRequest, res: HttpResponse, err?: Error) => RouteResponse
-): RouteHandler => ({
+const getRouteHandler = (handler: (req: HttpRequest, err?: Error) => RouteResponse): RouteHandler => ({
   path: "/",
   method: "GET",
-  handler: (req: HttpRequest, res: HttpResponse) =>
-    TE.tryCatch(async (): Promise<RouteResponse> => handler(req, res), E.toError),
-  errorHandler: (req: HttpRequest, res: HttpResponse, err: Error) =>
-    TE.tryCatch(async (): Promise<RouteResponse> => handler(req, res, err), E.toError),
+  handler: (req: HttpRequest) => TE.tryCatch(async (): Promise<RouteResponse> => handler(req), E.toError),
+  errorHandler: (req: HttpRequest, err: Error) =>
+    TE.tryCatch(async (): Promise<RouteResponse> => handler(req, err), E.toError),
 });
 
 describe("Handle response", () => {
   test("handles response properly", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, err?: Error) =>
+    const handler = (req: HttpRequest, err?: Error) =>
       ({
         response: "data",
         status: 200,
@@ -48,10 +45,10 @@ describe("Handle response", () => {
 
   test("executes error handler if error is thrown in handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, err?: Error) => {
+    const handler = (req: HttpRequest, err?: Error) => {
       throw new Error("My Error");
     };
-    const errorHandler = (req: HttpRequest, res: HttpResponse, err?: Error) =>
+    const errorHandler = (req: HttpRequest, err?: Error) =>
       ({ response: err.message, status: 500, headers: {} } as RouteResponse);
 
     const req = new MockReq({ method: "GET", url: "/" });
@@ -75,10 +72,10 @@ describe("Handle response", () => {
 
   test("executes fallback error handler if error is thrown in both handlers", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, err?: Error) => {
+    const handler = (req: HttpRequest, err?: Error) => {
       throw new Error("My Error");
     };
-    const errorHandler = (req: HttpRequest, res: HttpResponse, err?: Error) => {
+    const errorHandler = (req: HttpRequest, err?: Error) => {
       throw new Error("Error in error handler");
     };
 

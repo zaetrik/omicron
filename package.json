@@ -1,6 +1,6 @@
 {
   "name": "@zaetrik/omicron",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Simple library for building HTTP servers with Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,9 +9,7 @@
     "test": "jest ./src/**",
     "test:watch": "jest --watch ./src/**",
     "test:coverage": "jest --collectCoverage ./src/**",
-    "build": "tsc",
-    "start": "tsc -b && node dist/index.js",
-    "dev": "nodemon dist/index.js"
+    "build": "tsc"
   },
   "files": [
     "dist/"
@@ -42,7 +40,6 @@
     "jest": "^25.4.0",
     "mock-req": "^0.2.0",
     "mock-res": "^0.5.0",
-    "nodemon": "^2.0.3",
     "supertest": "^4.0.2",
     "ts-jest": "^25.4.0",
     "typescript": "^3.8.3"

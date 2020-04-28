@@ -1,14 +1,11 @@
-import { HttpResponse, HttpRequest } from "../../../http.interface";
+import { HttpRequest } from "../../../http.interface";
 import * as methods from "../handler.methods";
 import { RouteResponse } from "../../router/router.interface";
 
 describe("Handler request methods", () => {
   test("creates a GET route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+    const handler = (req: HttpRequest, error?: Error) => "data";
 
     // when
     const routeHandler = methods.get("/")(handler)(handler);
@@ -21,10 +18,7 @@ describe("Handler request methods", () => {
 
   test("creates a POST route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+    const handler = (req: HttpRequest, error?: Error) => "data";
 
     // when
     const routeHandler = methods.post("/")(handler)(handler);
@@ -37,10 +31,7 @@ describe("Handler request methods", () => {
 
   test("creates a DELETE route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+    const handler = (req: HttpRequest, error?: Error) => "data";
 
     // when
     const routeHandler = methods.dlt("/")(handler)(handler);
@@ -52,10 +43,7 @@ describe("Handler request methods", () => {
   });
   test("creates a PUT route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+    const handler = (req: HttpRequest, error?: Error) => "data";
 
     // when
     const routeHandler = methods.put("/")(handler)(handler);
@@ -68,10 +56,7 @@ describe("Handler request methods", () => {
 
   test("creates a catch-all route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+    const handler = (req: HttpRequest, error?: Error) => "data";
 
     // when
     const routeHandler = methods.all("/")(handler)(handler);
@@ -84,10 +69,7 @@ describe("Handler request methods", () => {
 
   test("creates a OPTIONS route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+    const handler = (req: HttpRequest, error?: Error) => "data";
 
     // when
     const routeHandler = methods.options("/")(handler)(handler);
@@ -100,10 +82,7 @@ describe("Handler request methods", () => {
 
   /*test("creates a HEAD route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+     const handler = (req: HttpRequest, error?: Error) => "data";
 
     // when
     const routeHandler = methods.head("/")(handler)(handler);
@@ -116,7 +95,7 @@ describe("Handler request methods", () => {
 
   /*test("creates a CONNECT route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
+    const handler = (req: HttpRequest, error?: Error) =>
       ({
         response: "data",
       } as RouteResponse);
@@ -132,10 +111,7 @@ describe("Handler request methods", () => {
 
   test("creates a PATCH route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+    const handler = (req: HttpRequest, error?: Error) => "data";
 
     // when
     const routeHandler = methods.patch("/")(handler)(handler);
@@ -148,10 +124,7 @@ describe("Handler request methods", () => {
 
   test("creates a TRACE route handler", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse, error?: Error) =>
-      ({
-        response: "data",
-      } as RouteResponse);
+    const handler = (req: HttpRequest, error?: Error) => "data";
 
     // when
     const routeHandler = methods.trace("/")(handler)(handler);

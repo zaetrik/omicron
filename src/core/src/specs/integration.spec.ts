@@ -1,5 +1,6 @@
 import supertest from "supertest";
 import * as omicron from "../../../index";
+import * as E from "fp-ts/lib/Either";
 
 jest.setTimeout(15000);
 
@@ -460,7 +461,7 @@ describe("Integration Test", () => {
     // given
     const handler = omicron.get("/")((req: omicron.HttpRequest) => {
       throw new Error("We threw an error");
-    })((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => ({
+    })((req: omicron.HttpRequest, error: Error) => ({
       response: error.message,
       status: 500,
       headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
@@ -487,7 +488,7 @@ describe("Integration Test", () => {
     // given
     const handler = omicron.get("/")((req: omicron.HttpRequest) => {
       throw new Error("We threw an error");
-    })((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => {
+    })((req: omicron.HttpRequest, error: Error) => {
       throw new Error("We threw a second error");
     });
 
@@ -514,7 +515,7 @@ describe("Integration Test", () => {
       response: "handlerIndex",
       status: 200,
       headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
-    }))((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => ({
+    }))((req: omicron.HttpRequest, error: Error) => ({
       response: "It does not work!",
       status: 500,
       headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
@@ -524,7 +525,7 @@ describe("Integration Test", () => {
       response: "handlerPathParamsGet",
       status: 200,
       headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
-    }))((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => ({
+    }))((req: omicron.HttpRequest, error: Error) => ({
       response: "It does not work!",
       status: 500,
       headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
@@ -534,7 +535,7 @@ describe("Integration Test", () => {
       response: "handlerPathParamsPost",
       status: 200,
       headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
-    }))((req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => ({
+    }))((req: omicron.HttpRequest, error: Error) => ({
       response: "It does not work!",
       status: 500,
       headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
@@ -571,6 +572,45 @@ describe("Integration Test", () => {
       .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
       .expect(function (res) {
         if (res.text === "handlerIndex") {
+          return;
+        } else {
+          throw new Error("Falsy response body");
+        }
+      })
+      .expect(200);
+
+    done();
+  });
+
+  test("Handles request whose handler uses middleware", async (done) => {
+    // given
+    const authenticatedMiddleware: omicron.Middleware = (req) =>
+      req.query.number > 10 ? E.right(req) : E.left(new Error("User not authenticated"));
+
+    const handler = () => ({
+      response: "User is authenticated",
+      status: 200,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    });
+
+    const handlerWithMiddleware = omicron.get("/middleware")(
+      omicron.useMiddleware(authenticatedMiddleware)(handler)
+    )((req: omicron.HttpRequest, error: Error) => ({
+      response: error.message,
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
+
+    await getServerInstance([handlerWithMiddleware]);
+
+    // when
+
+    await supertest(server)
+      .get("/middleware?number=15")
+      // then
+      .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
+      .expect(function (res) {
+        if (res.text === "User is authenticated") {
           return;
         } else {
           throw new Error("Falsy response body");

@@ -1,34 +1,30 @@
 import * as omicron from "../index";
 import { IO } from "fp-ts/lib/IO";
 import { RouteResponse } from "../core/src/http/router/router.interface";
+import * as E from "fp-ts/lib/Either";
+import { flow } from "fp-ts/lib/function";
+const wait = (timeout: number) => new Promise((resolve) => setTimeout(resolve, timeout));
 
-// We can create routes with those simple helper functions => {HTTP_METHOD}(path: string)(handler: (req: omicron.HttpRequest, res: omicron.HttpResponse) => any)(errorHandler: (req: omicron.HttpRequest, res: omicron.HttpResponse, error: Error) => any)
-const getHandler = omicron.get("/get")(async (req, res) => {
-  const wait = (timeout: number) => new Promise((resolve) => setTimeout(resolve, timeout));
-
+const getHandler = omicron.get("/get")(async (req) => {
   await wait(5000);
 
   return "It works";
-})((req, res, err) => {
+})((req, err) => {
   return err.message;
 });
 
-const postHandler = omicron.post("/post")((req, res) => {
+const postHandler = omicron.post("/post")((req) => {
   return req.body;
-})((req, res, err) => "My error handler");
+})((req, err) => "My error handler");
 
-const putHandler = omicron.put("/put")((req, res) => "My PUT request")((req, res) => "My error handler");
+const putHandler = omicron.put("/put")((req) => "My PUT request")((req) => "My error handler");
 
-const deleteHandler = omicron.dlt("/delete")((req, res) => "My DELETE request")(
-  (req, res) => "My error handler"
-);
+const deleteHandler = omicron.dlt("/delete")((req) => "My DELETE request")((req) => "My error handler");
 
-const allHandler = omicron.all("/all")((req, res) => "My catch all handler")(
-  (req, res) => "My error handler"
-);
+const allHandler = omicron.all("/all")((req) => "My catch all handler")((req) => "My error handler");
 
 // You can also contruct a RouteHandler with the r() function
-const myHandler = omicron.r("/myhandler")("GET")((req, res) => "My Handler")(() => "Error Handler");
+const myHandler = omicron.r("/myhandler")("GET")((req) => "My Handler")(() => "Error Handler");
 
 const indexHandler = omicron.r("/")("GET")(() => "It works!")(() => "It doesn't work!");
 
@@ -41,11 +37,36 @@ const handlerWithOptions = omicron.r("/withoptions")("GET")(
       status: 200, // You can set a custom status code
       headers: { "Set-Cookie": ["cookie=true"] }, // Here you can set all your custom headers. If you don't want to set any custom headers, just set headers to {}
     } as RouteResponse)
-)((_, __, err) => err);
+)((_, err) => err);
+
+// This is how you can create middleware
+const authenticated: omicron.Middleware = (req: omicron.HttpRequest) =>
+  req.query.number > 10 ? E.right(req) : E.left(new Error("Number is not > 10"));
+
+const isBob: omicron.Middleware = (req: omicron.HttpRequest) =>
+  req.query.name === "Bob" ? E.right(req) : E.left(new Error("User is not Bob"));
+
+// This is how you use middleware in your handlers
+// Default behaviour is to throw the error in the handler
+// Then you should handle it in your error handler
+// Another option is to pass an additional error handler to useMiddleware() which will handle any errors from the middleware
+const handlerWithMiddleware = omicron.r("/middleware")("GET")(
+  omicron.useMiddleware(authenticated)((req) => "User is authenticated")
+)((req, err) => err.message);
+
+// You can also use multiple middlewares
+// The middleware functions have to be composed to a single function (here we used flow() from fp-ts which is used for function composition from left to right)
+const handlerWithMultipleMiddlewares = omicron.r("/multiple-middlewares")("GET")(
+  omicron.useMiddleware(flow(authenticated, E.chain(isBob)))(
+    (req) => "User is authenticated and his name is Bob"
+  )
+)((req, err) => err.message);
 
 const listener = omicron.httpListener({
   // Here you can add all your routes that should be exposed
   routes: [
+    handlerWithMiddleware,
+    handlerWithMultipleMiddlewares,
     indexHandler,
     myHandler,
     getHandler,

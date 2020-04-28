@@ -1,4 +1,4 @@
-import { ContentType, HttpRequest, HttpResponse } from "../../http.interface";
+import { ContentType, HttpRequest } from "../../http.interface";
 import { RouteHandlerFn, RouteResponse } from "../router/router.interface";
 import { createRouteHandlerFn } from "./handler.util";
 import { flow } from "fp-ts/lib/function";
@@ -9,7 +9,7 @@ export const errorHandler = (err: string): RouteHandlerFn =>
     () => createRouteHandlerFn(defaultErrorHandler(err))
   )();
 
-const defaultErrorHandler = (err: string) => (req: HttpRequest, res: HttpResponse): RouteResponse => ({
+const defaultErrorHandler = (err: string) => (req: HttpRequest): RouteResponse => ({
   status: 500,
   response: `<h1>${err}</h1>`,
   headers: { "Content-Type": ContentType.TEXT_HTML },

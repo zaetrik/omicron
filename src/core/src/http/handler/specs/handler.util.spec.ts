@@ -1,13 +1,11 @@
-import { HttpResponse, HttpRequest, ContentType } from "../../../http.interface";
+import { HttpRequest, ContentType } from "../../../http.interface";
 import { createRouteHandlerFn, isRouteResponse, toRouteResponse, defaultHeaders } from "../handler.util";
 import { RouteResponse } from "../../router/router.interface";
 
 describe("Handler utils", () => {
   test("creates a route handler function", () => {
     // given
-    const handler = (req: HttpRequest, res: HttpResponse) => ({
-      response: "data",
-    });
+    const handler = (req: HttpRequest) => "data";
 
     // when
     const routeHandlerFn = createRouteHandlerFn(handler);
