@@ -6,6 +6,10 @@ Omicron is a small library to build HTTP servers in Node.js.
 
 Omicron uses a more functional approach compared to other solutions, e.g. the functions to create route handlers are curried by default which can be useful for function composition.
 
+In Omicron every route handler you implement is just a basic function that eventually receives a `req: HttpRequest` object or in the case of an error handler also an `Error`. The handler function just returns the data that will be sent back to the client.
+
+This allows you to do things like function composition and other powerful stuff with your handlers. For example when you use middlewares with `useMiddleware()` it composes the middleware functions with your normal handler function.
+
 Omicron is written in TypeScript and has pretty good typing, which should help you to be more productive.
 
 Please see `/example/example.ts` for an example setup.
@@ -97,8 +101,6 @@ In order for your route to work you have to define two handlers. One normal hand
 
 ### Middleware 🖖
 
-This will probably change in the future, but currently you can implement middleware like this =>
-
     import * as omicron from "@zaetrik/omicron";
     import * as E from "fp-ts/lib/Either";
     import { flow } from "fp-ts/lib/function";
@@ -114,7 +116,7 @@ This will probably change in the future, but currently you can implement middlew
         ("/middleware")
         ("GET")
         (omicron.useMiddleware
-                (authenticated)
+                ([authenticated])
                 ((req) => "User is authenticated"))
         ((req, err) => err.message);
 
@@ -123,14 +125,44 @@ This will probably change in the future, but currently you can implement middlew
         ("/multiple-middlewares")
         ("GET")
         (omicron.useMiddleware
-            // You can use multiple middlewares by composing them
-            (flow(authenticated, E.chain(isBob)))
+            // Middlewares are executed from left to right
+            ([authenticated, isBob])
             ((req) => "User is authenticated and his name is Bob"))
         ((req, err) => err.message);
 
-As you can see we use the `useMiddleware(middleware)(handler)(errorHandler?)` function instead of a basic handler function we use normally. Any middleware function has to return something of type `Either<Error, HttpRequest | unknown>` (Either is a type from [fp-ts](https://github.com/gcanti/fp-ts)).
+As you can see we use the `useMiddleware([middleware])(handler)(errorHandler?)` function instead of a basic handler function we use normally. Any middleware function has to return something of type `Either<Error, HttpRequest | unknown>` (Either is a type from [fp-ts](https://github.com/gcanti/fp-ts)).
 
 The default behaviour of the middleware is to throw the error in the handler and then you should handle it in your error handler like you always do.
-Another option is to pass an additional error handler to useMiddleware()()(errorHandler) which will handle any error from the middleware.
+Another option is to pass an additional error handler to `useMiddleware()()(errorHandler)` which will handle any error from the middleware.
 
 The value returned from the middleware is used as the first parameter of your handler function, which is normally the `req: HttpRequest` object, but it could be whatever you like.
+
+Another way of creating and using middleware is this =>
+
+    import * as omicron from "@zaetrik/omicron";
+
+    const authenticatedErrorThrowing: omicron.ErrorThrowingMiddleware = (req: HttpRequest) =>
+        req.query.number > 10
+            ? req
+            : (() => {
+                throw new Error("Number is not > 10");
+            })();
+
+    const isBobErrorThrowing: omicron.ErrorThrowingMiddleware = (req: omicron.HttpRequest) =>
+        req.query.name === "Bob"
+            ? req
+            : (() => {
+                throw new Error("User is not Bob");
+            })();
+
+    const handlerWithErrorThrowingMiddlewares = omicron.r
+        ("/middleware-error-throwing")
+        ("GET")
+        (omicron.useErrorThrowingMiddleware
+            ([authenticatedErrorThrowing, isBobErrorThrowing])
+            ((req) => "User is authenticated and his name is Bob"))
+        ((_, err) => err.message);
+
+You also have the option to create middleware that just returns the raw value. Middleware of type `ErrorThrowingMiddleware` has to return either the raw value, that should be passed to the next middleware or the route handler, or it has to throw an error, which will then be passed to your error handler.
+
+Error throwing middleware can only be used with `useErrorThrowingMiddleware()`.

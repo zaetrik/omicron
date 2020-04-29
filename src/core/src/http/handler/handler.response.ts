@@ -3,7 +3,8 @@ import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/pipeable";
 import { RouteHandlerFn, RouteResponse } from "../router/router.interface";
 import { IO } from "fp-ts/lib/IO";
-import { isRouteResponse, toRouteResponse, defaultHeaders } from "./handler.util";
+import { isRouteResponse, toRouteResponse } from "./handler.util";
+import { defaultHeaders } from "./handler.interface";
 
 const executeHandler = (
   req: HttpRequest,

@@ -4,6 +4,7 @@ export * from "./core/src/http/router/router.interface";
 export * from "./core/src/http/server/server.interface";
 export * from "./core/src/http/listener/listener.interface";
 export * from "./middleware/src/middleware.interface";
+export * from "./core/src/http/handler/handler.interface";
 
 // Server
 export { httpListener } from "./core/src/http/listener/listener";
@@ -16,7 +17,7 @@ export { errorHandler } from "./core/src/http/handler/handler.error";
 export { r } from "./core/src/http/handler/handler.request";
 
 // Util
-export * from "./core/src/http/handler/handler.util";
+export { isRouteResponse, toRouteResponse } from "./core/src/http/handler/handler.util";
 
 // Middleware
 export * from "./middleware/src/useMiddleware";

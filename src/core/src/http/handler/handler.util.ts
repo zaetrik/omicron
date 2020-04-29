@@ -1,8 +1,9 @@
-import { HttpRequest, ContentType } from "../../http.interface";
+import { HttpRequest } from "../../http.interface";
 import { RouteHandlerFn, RouteResponseValidation, RouteResponseHeaders } from "../router/router.interface";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import { RouteResponse } from "../router/router.interface";
+import { defaultHeaders } from "./handler.interface";
 
 export const createRouteHandlerFn = (
   handler: (
@@ -24,5 +25,3 @@ export const toRouteResponse = (
   status: status ? status : 200,
   headers: headers ? { ...defaultHeaders, ...headers } : defaultHeaders,
 });
-
-export const defaultHeaders = { "Content-Type": ContentType.APPLICATION_JSON };

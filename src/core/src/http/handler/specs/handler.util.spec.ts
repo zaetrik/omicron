@@ -1,6 +1,7 @@
 import { HttpRequest, ContentType } from "../../../http.interface";
-import { createRouteHandlerFn, isRouteResponse, toRouteResponse, defaultHeaders } from "../handler.util";
+import { createRouteHandlerFn, isRouteResponse, toRouteResponse } from "../handler.util";
 import { RouteResponse } from "../../router/router.interface";
+import { defaultHeaders } from "../handler.interface";
 
 describe("Handler utils", () => {
   test("creates a route handler function", () => {
