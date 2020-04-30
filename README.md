@@ -2,9 +2,9 @@
 
 [![coverage report](https://gitlab.com/Cedomic/omicron/badges/master/coverage.svg)](https://gitlab.com/Cedomic/omicron/-/commits/master) [![pipeline status](https://gitlab.com/Cedomic/omicron/badges/master/pipeline.svg)](https://gitlab.com/Cedomic/omicron/-/commits/master)
 
-Omicron is a small library to build HTTP servers in Node.js.
+Omicron is a small library to build HTTP servers in Node.js in a more functional way.
 
-Omicron uses a more functional approach compared to other solutions, e.g. the functions to create route handlers are curried by default which can be useful for function composition.
+Omicron uses a more functional approach compared to other solutions.
 
 In Omicron every route handler you implement is just a basic function that eventually receives a `req: HttpRequest` object or in the case of an error handler also an `Error`. The handler function just returns the data that will be sent back to the client.
 
@@ -32,7 +32,7 @@ Start a server that handles a `GET` request to `/` =>
         ("/")
         ("GET")
         ((req) => "Hello 👋")
-        ((res, error) => `Oops! An error occured => ${error.message}`);
+        ((req, error) => `Oops! An error occured => ${error.message}`);
 
     const listener = omicron.httpListener({
         // Here you can add all your routes that should be exposed
