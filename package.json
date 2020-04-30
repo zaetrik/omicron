@@ -1,6 +1,6 @@
 {
   "name": "@zaetrik/omicron",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Simple library for building HTTP servers with Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
