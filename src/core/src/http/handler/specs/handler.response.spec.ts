@@ -2,7 +2,7 @@ import { HttpResponse, HttpRequest } from "../../../http.interface";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import { handleResponse } from "../handler.response";
-import { RouteHandler, RouteResponse } from "../../router/router.interface";
+import { RouteHandler, RouteResponse, ErrorRouteHandlerFn } from "../../router/router.interface";
 const MockReq = require("mock-req");
 const MockRes = require("mock-res");
 
@@ -45,10 +45,10 @@ describe("Handle response", () => {
 
   test("executes error handler if error is thrown in handler", () => {
     // given
-    const handler = (req: HttpRequest, err?: Error) => {
+    const handler = (req: HttpRequest) => {
       throw new Error("My Error");
     };
-    const errorHandler = (req: HttpRequest, err?: Error) =>
+    const errorHandler = (req: HttpRequest, err: Error) =>
       ({ response: err.message, status: 500, headers: {} } as RouteResponse);
 
     const req = new MockReq({ method: "GET", url: "/" });
@@ -72,10 +72,10 @@ describe("Handle response", () => {
 
   test("executes fallback error handler if error is thrown in both handlers", () => {
     // given
-    const handler = (req: HttpRequest, err?: Error) => {
+    const handler = (req: HttpRequest) => {
       throw new Error("My Error");
     };
-    const errorHandler = (req: HttpRequest, err?: Error) => {
+    const errorHandler = (req: HttpRequest, err: Error) => {
       throw new Error("Error in error handler");
     };
 

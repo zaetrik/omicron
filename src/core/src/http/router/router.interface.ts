@@ -61,7 +61,11 @@ export interface RouteHandler {
   path: string;
   method: HttpMethod;
   handler: RouteHandlerFn;
-  errorHandler: RouteHandlerFn;
+  errorHandler: ErrorRouteHandlerFn;
 }
 
-export type RouteHandlerFn = (req: HttpRequest, error?: Error) => TaskEither<Error, RouteResponse | unknown>;
+export type RouteHandlerFn = (req: HttpRequest) => TaskEither<Error, RouteResponse | unknown>;
+export type ErrorRouteHandlerFn = (
+  req: HttpRequest,
+  error: Error
+) => TaskEither<Error, RouteResponse | unknown>;

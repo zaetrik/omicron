@@ -1,7 +1,7 @@
 import { HttpRequest, HttpResponse, ContentType } from "../../http.interface";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/pipeable";
-import { RouteHandlerFn, RouteResponse } from "../router/router.interface";
+import { RouteHandlerFn, RouteResponse, ErrorRouteHandlerFn } from "../router/router.interface";
 import { IO } from "fp-ts/lib/IO";
 import { isRouteResponse, toRouteResponse } from "./handler.util";
 import { defaultHeaders } from "./handler.interface";
@@ -10,7 +10,7 @@ const executeHandler = (
   req: HttpRequest,
   res: HttpResponse,
   routeHandler: RouteHandlerFn,
-  errorHandler: RouteHandlerFn
+  errorHandler: ErrorRouteHandlerFn
 ): IO<void> => async () =>
   await pipe(
     // Here we execute our route handler and wrap it inside an Either<Error, RouteResponse>
@@ -82,7 +82,7 @@ const sendResponse = (res: HttpResponse) => ({
   res.end(transformResponse(response));
 };
 
-export const handleResponse = (routeHandler: RouteHandlerFn) => (errorHandler: RouteHandlerFn) => (
+export const handleResponse = (routeHandler: RouteHandlerFn) => (errorHandler: ErrorRouteHandlerFn) => (
   req: HttpRequest
 ) => (res: HttpResponse) => {
   executeHandler(req, res, routeHandler, errorHandler)();

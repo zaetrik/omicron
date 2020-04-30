@@ -1,5 +1,10 @@
 import { HttpRequest, ContentType } from "../../../http.interface";
-import { createRouteHandlerFn, isRouteResponse, toRouteResponse } from "../handler.util";
+import {
+  createRouteHandlerFn,
+  isRouteResponse,
+  toRouteResponse,
+  createErrorRouteHandlerFn,
+} from "../handler.util";
 import { RouteResponse } from "../../router/router.interface";
 import { defaultHeaders } from "../handler.interface";
 
@@ -13,6 +18,17 @@ describe("Handler utils", () => {
 
     // then
     expect(routeHandlerFn).toBeDefined();
+  });
+
+  test("creates an error route handler function", () => {
+    // given
+    const errorHandler = (req: HttpRequest, error: Error) => "data";
+
+    // when
+    const errorRouteHandlerFn = createErrorRouteHandlerFn(errorHandler);
+
+    // then
+    expect(errorRouteHandlerFn).toBeDefined();
   });
 
   test("isRouteResponse returns true if given a RouteResponse", () => {

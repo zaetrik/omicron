@@ -1,4 +1,4 @@
-import { RouteHandler, RouteHandlerFn } from "./router.interface";
+import { RouteHandler, RouteHandlerFn, ErrorRouteHandlerFn } from "./router.interface";
 import { HttpRequest, RequestBody } from "../../http.interface";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as O from "fp-ts/lib/Option";
@@ -13,7 +13,7 @@ export const resolveRequest = (req: HttpRequest) => (
 ): O.Option<
   Promise<{
     routeHandler: RouteHandlerFn;
-    errorHandler: RouteHandlerFn;
+    errorHandler: ErrorRouteHandlerFn;
     populatedReq: HttpRequest;
   }>
 > => {
@@ -38,7 +38,7 @@ export const resolveRequest = (req: HttpRequest) => (
           },
         } as {
           routeHandler: RouteHandlerFn;
-          errorHandler: RouteHandlerFn;
+          errorHandler: ErrorRouteHandlerFn;
           populatedReq: HttpRequest;
         })
     )

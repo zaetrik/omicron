@@ -1,5 +1,5 @@
 import { HttpMethod, HttpRequest } from "../../http.interface";
-import { createRouteHandlerFn } from "./handler.util";
+import { createRouteHandlerFn, createErrorRouteHandlerFn } from "./handler.util";
 import { RouteHandler } from "../router/router.interface";
 
 export const r = (path: string) => (method: HttpMethod) => (handler: (req: HttpRequest) => unknown) => (
@@ -8,5 +8,5 @@ export const r = (path: string) => (method: HttpMethod) => (handler: (req: HttpR
   path,
   method,
   handler: createRouteHandlerFn(handler),
-  errorHandler: createRouteHandlerFn(errorHandler),
+  errorHandler: createErrorRouteHandlerFn(errorHandler),
 });
