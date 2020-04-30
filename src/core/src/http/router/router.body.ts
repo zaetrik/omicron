@@ -13,7 +13,7 @@ export const getBody = async (req: HttpRequest): Promise<E.Either<Error, Request
     )
   );
 
-const fromReadableStream = (stream: Readable): Promise<E.Either<Error, Buffer[]>> => {
+export const fromReadableStream = (stream: Readable): Promise<E.Either<Error, Buffer[]>> => {
   stream.pause();
   return new Promise((resolve) => {
     const data: any[] = [];

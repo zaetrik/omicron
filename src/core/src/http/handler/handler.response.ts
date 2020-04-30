@@ -28,7 +28,7 @@ const executeHandler = (
                 response: errorHandlerError.message,
                 status: 500,
                 headers: { "Content-Type": ContentType.TEXT_PLAIN },
-              }),
+              })(),
             // If errorHandler successful
 
             (errorHandlerSuccess) =>
@@ -41,7 +41,7 @@ const executeHandler = (
                       (errorHandlerSuccess as RouteResponse).headers
                     )
                   : toRouteResponse(errorHandlerSuccess, 500)
-              )
+              )()
           )
         ),
       // If routeHandler successful =>
@@ -55,35 +55,58 @@ const executeHandler = (
                 (result as RouteResponse).headers
               )
             : toRouteResponse(result)
-        )
+        )()
     )
   );
 
-const transformResponse = (response: any): string => {
+export const transformResponse = (response: any): E.Either<Error, string> => {
   switch (typeof response) {
     case "object":
-      return JSON.stringify(response);
+      return E.tryCatch(() => JSON.stringify(response), E.toError);
     case "string":
-      return response;
+      return E.tryCatch(() => response, E.toError);
     case "number":
-      return response.toString();
-    default:
-      return response;
+      return E.tryCatch(() => response.toString(), E.toError);
+    case "boolean":
+      return E.tryCatch(() => response.toString(), E.toError);
+    case "undefined":
+      return E.tryCatch(() => "", E.toError);
+    case "function":
+      return E.tryCatch(() => "", E.toError);
+    case "bigint":
+      return E.tryCatch(() => response.toString(), E.toError);
+    case "symbol":
+      return E.tryCatch(() => response.toString(), E.toError);
+    // Removing the default case for the 100% test coverage
+    //default:
+    //return E.tryCatch(() => response, E.toError);
   }
 };
 
-const sendResponse = (res: HttpResponse) => ({
+export const sendResponse = (res: HttpResponse) => ({
   status = 200,
   response = "",
   headers = defaultHeaders,
-}: RouteResponse) => {
+}: RouteResponse): IO<void> => () => {
   res.writeHead(status, headers);
 
-  res.end(transformResponse(response));
+  const transformedResponse = pipe(
+    transformResponse(response),
+    E.fold(
+      (err) => {
+        res.writeHead(500, "Internal Server Error", headers);
+        res.end();
+        throw new Error("Could not parse response: " + err);
+      },
+      (res) => res
+    )
+  );
+
+  res.end(transformedResponse);
 };
 
 export const handleResponse = (routeHandler: RouteHandlerFn) => (errorHandler: ErrorRouteHandlerFn) => (
   req: HttpRequest
-) => (res: HttpResponse) => {
+) => (res: HttpResponse): IO<void> => () => {
   executeHandler(req, res, routeHandler, errorHandler)();
 };

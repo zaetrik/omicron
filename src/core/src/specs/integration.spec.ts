@@ -398,7 +398,7 @@ describe("Integration Test", () => {
     done();
   });*/
 
-  test("Handles request made with TRACE()", async (done) => {
+  test("Handles request made with trace()", async (done) => {
     // given
     const handler = omicron.trace("/name/:name")((req: omicron.HttpRequest) => ({
       body: req.body,
@@ -509,6 +509,72 @@ describe("Integration Test", () => {
     done();
   });
 
+  test("Handles request with async handler", async (done) => {
+    // given
+    const wait = (timeout: number) => new Promise((resolve) => setTimeout(resolve, timeout));
+
+    const handler = omicron.get("/")(async (req: omicron.HttpRequest) => {
+      await wait(1000);
+      return {
+        response: "It works!",
+        status: 200,
+        headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+      };
+    })((req: omicron.HttpRequest, error: Error) => ({
+      response: error.message,
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
+
+    await getServerInstance([handler]);
+
+    await supertest(server)
+      .get("/")
+      .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
+      .expect(function (res) {
+        if (res.text === "It works!") {
+          return;
+        } else {
+          throw new Error("Falsy response body");
+        }
+      })
+      .expect(200);
+
+    done();
+  });
+
+  test("Handles request with async error handler", async (done) => {
+    // given
+    const wait = (timeout: number) => new Promise((resolve) => setTimeout(resolve, timeout));
+
+    const handler = omicron.get("/")(async (req: omicron.HttpRequest) => {
+      throw new Error("We threw an error");
+    })(async (req: omicron.HttpRequest, error: Error) => {
+      await wait(1000);
+      return {
+        response: error.message,
+        status: 500,
+        headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+      };
+    });
+
+    await getServerInstance([handler]);
+
+    await supertest(server)
+      .get("/")
+      .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
+      .expect(function (res) {
+        if (res.text === "We threw an error") {
+          return;
+        } else {
+          throw new Error("Falsy response body");
+        }
+      })
+      .expect(500);
+
+    done();
+  });
+
   test("Route matcher resolves to correct route", async (done) => {
     // given
     const handlerIndex = omicron.get("/")((req: omicron.HttpRequest) => ({
@@ -578,6 +644,27 @@ describe("Integration Test", () => {
         }
       })
       .expect(200);
+
+    done();
+  });
+
+  test("Route matcher resolves to notFound handler when no handler was found", async (done) => {
+    // given
+    await getServerInstance([]);
+
+    // when
+    await supertest(server)
+      .post("/user/bob")
+      // then
+      .expect("Content-Type", omicron.ContentType.TEXT_HTML)
+      .expect(function (res) {
+        if (res.text === "<h1>Not Found</h1>") {
+          return;
+        } else {
+          throw new Error("Falsy response body");
+        }
+      })
+      .expect(404);
 
     done();
   });
@@ -654,6 +741,197 @@ describe("Integration Test", () => {
       .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
       .expect(function (res) {
         if (res.text === "User is authenticated") {
+          return;
+        } else {
+          throw new Error("Falsy response body");
+        }
+      })
+      .expect(200);
+
+    done();
+  });
+
+  test("Handles request whose handler uses multiple middlewares", async (done) => {
+    // given
+    const authenticatedMiddleware: omicron.Middleware = (req) =>
+      req.query.number > 10 ? E.right(req) : E.left(new Error("User not authenticated"));
+
+    const isBobMiddleware: omicron.Middleware = (req) =>
+      req.query.name === "Bob" ? E.right(req) : E.left(new Error("User is not Bob"));
+
+    const handler = () => ({
+      response: "User is authenticated and his name is Bob",
+      status: 200,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    });
+
+    const handlerWithMiddleware = omicron.get("/middleware")(
+      omicron.useMiddleware([authenticatedMiddleware, isBobMiddleware])(handler)
+    )((req: omicron.HttpRequest, error: Error) => ({
+      response: error.message,
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
+
+    await getServerInstance([handlerWithMiddleware]);
+
+    // when
+
+    await supertest(server)
+      .get("/middleware?number=15&name=Bob")
+      // then
+      .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
+      .expect(function (res) {
+        if (res.text === "User is authenticated and his name is Bob") {
+          return;
+        } else {
+          throw new Error("Falsy response body");
+        }
+      })
+      .expect(200);
+
+    done();
+  });
+
+  test("Handles request whose handler uses multiple error throwing middlewares", async (done) => {
+    // given
+    const authenticatedMiddleware: omicron.ErrorThrowingMiddleware = (req) =>
+      req.query.number > 10
+        ? req
+        : (() => {
+            throw new Error("User not authenticated");
+          })();
+
+    const isBobMiddleware: omicron.ErrorThrowingMiddleware = (req) =>
+      req.query.name === "Bob"
+        ? req
+        : (() => {
+            throw new Error("User is not Bob");
+          })();
+
+    const handler = () => ({
+      response: "User is authenticated and his name is Bob",
+      status: 200,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    });
+
+    const handlerWithErrorThrowingMiddleware = omicron.get("/middleware")(
+      omicron.useErrorThrowingMiddleware([authenticatedMiddleware, isBobMiddleware])(handler)
+    )((req: omicron.HttpRequest, error: Error) => ({
+      response: error.message,
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
+
+    await getServerInstance([handlerWithErrorThrowingMiddleware]);
+
+    // when
+
+    await supertest(server)
+      .get("/middleware?number=15&name=Bob")
+      // then
+      .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
+      .expect(function (res) {
+        if (res.text === "User is authenticated and his name is Bob") {
+          return;
+        } else {
+          throw new Error("Falsy response body");
+        }
+      })
+      .expect(200);
+
+    done();
+  });
+
+  test("Handles request whose handler uses multiple async middlewares", async (done) => {
+    // given
+    const wait = (timeout: number) => new Promise((resolve) => setTimeout(resolve, timeout));
+
+    const authenticatedMiddleware: omicron.Middleware = async (req) => {
+      await wait(1000);
+      return req.query.number > 10 ? E.right(req) : E.left(new Error("User not authenticated"));
+    };
+
+    const isBobMiddleware: omicron.Middleware = (req) =>
+      req.query.name === "Bob" ? E.right(req) : E.left(new Error("User is not Bob"));
+
+    const handler = () => ({
+      response: "User is authenticated and his name is Bob",
+      status: 200,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    });
+
+    const handlerWithMiddleware = omicron.get("/middleware")(
+      omicron.useMiddleware([authenticatedMiddleware, isBobMiddleware])(handler)
+    )((req: omicron.HttpRequest, error: Error) => ({
+      response: error.message,
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
+
+    await getServerInstance([handlerWithMiddleware]);
+
+    // when
+
+    await supertest(server)
+      .get("/middleware?number=15&name=Bob")
+      // then
+      .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
+      .expect(function (res) {
+        if (res.text === "User is authenticated and his name is Bob") {
+          return;
+        } else {
+          throw new Error("Falsy response body");
+        }
+      })
+      .expect(200);
+
+    done();
+  });
+
+  test("Handles request whose handler uses multiple async error throwing middlewares", async (done) => {
+    // given
+    const wait = (timeout: number) => new Promise((resolve) => setTimeout(resolve, timeout));
+    const authenticatedMiddleware: omicron.ErrorThrowingMiddleware = async (req) => {
+      await wait(1000);
+      return req.query.number > 10
+        ? req
+        : (() => {
+            throw new Error("User not authenticated");
+          })();
+    };
+
+    const isBobMiddleware: omicron.ErrorThrowingMiddleware = (req) =>
+      req.query.name === "Bob"
+        ? req
+        : (() => {
+            throw new Error("User is not Bob");
+          })();
+
+    const handler = () => ({
+      response: "User is authenticated and his name is Bob",
+      status: 200,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    });
+
+    const handlerWithErrorThrowingMiddleware = omicron.get("/middleware")(
+      omicron.useErrorThrowingMiddleware([authenticatedMiddleware, isBobMiddleware])(handler)
+    )((req: omicron.HttpRequest, error: Error) => ({
+      response: error.message,
+      status: 500,
+      headers: { "Content-Type": omicron.ContentType.TEXT_PLAIN },
+    }));
+
+    await getServerInstance([handlerWithErrorThrowingMiddleware]);
+
+    // when
+
+    await supertest(server)
+      .get("/middleware?number=15&name=Bob")
+      // then
+      .expect("Content-Type", omicron.ContentType.TEXT_PLAIN)
+      .expect(function (res) {
+        if (res.text === "User is authenticated and his name is Bob") {
           return;
         } else {
           throw new Error("Falsy response body");

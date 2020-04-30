@@ -13,11 +13,12 @@ export { createServer } from "./core/src/http/server/server";
 // Request Handlers
 export * from "./core/src/http/handler/handler.methods";
 export { handleResponse } from "./core/src/http/handler/handler.response";
-export { errorHandler } from "./core/src/http/handler/handler.error";
+export { errorHandler, defaultErrorHandlerRouteResponse } from "./core/src/http/handler/handler.error";
+export { notFoundHandler, defaultNotFoundRouteResponse } from "./core/src/http/handler/handler.notFound";
 export { r } from "./core/src/http/handler/handler.request";
 
 // Util
 export { isRouteResponse, toRouteResponse } from "./core/src/http/handler/handler.util";
 
 // Middleware
-export * from "./middleware/src/useMiddleware";
+export { useErrorThrowingMiddleware, useMiddleware } from "./middleware/src/useMiddleware";

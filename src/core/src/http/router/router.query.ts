@@ -10,4 +10,4 @@ export const getQuery = (reqUrl: string | undefined | null): QueryParameters =>
     O.getOrElse(() => ({} as QueryParameters))
   );
 
-const getQueryParams = (reqUrl: string) => parse(reqUrl, true).query;
+export const getQueryParams = (reqUrl: string) => parse(reqUrl, true).query;

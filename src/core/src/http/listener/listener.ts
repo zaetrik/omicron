@@ -4,10 +4,10 @@ import { setupRouting } from "../router/router.setup";
 import { matchRoute } from "../router/router.matcher";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
-import { errorHandler as defaultErrorHandler } from "../handler/handler.error";
 import { handleResponse } from "../handler/handler.response";
 import { ListenerConfig, ListenerHandler, HttpListenerConfig, HttpListener } from "./listener.interface";
 import { resolveRequest } from "../router/router.resolver";
+import { notFoundHandler } from "../handler/handler.notFound";
 
 const createListener = <T extends ListenerConfig, U extends ListenerHandler>(config: ListenerConfig) => {
   const { routes = [] } = config ?? {};
@@ -26,14 +26,14 @@ const createListener = <T extends ListenerConfig, U extends ListenerHandler>(con
       O.chain((routeHandler) => resolveRequest(serverReq)(routeHandler)),
       O.getOrElse(() =>
         Promise.resolve({
-          routeHandler: defaultErrorHandler("No handler found"),
-          errorHandler: defaultErrorHandler("No handler found"),
+          routeHandler: notFoundHandler(),
+          errorHandler: notFoundHandler(),
           populatedReq: serverReq as HttpRequest,
         })
       )
     );
 
-    handleResponse(routeHandler)(errorHandler)(populatedReq)(serverRes);
+    handleResponse(routeHandler)(errorHandler)(populatedReq)(serverRes)();
   };
 
   return handle;
