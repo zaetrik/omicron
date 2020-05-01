@@ -2,6 +2,7 @@ import { HttpRequest } from "../../core/src/http.interface";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
+import * as T from "fp-ts/lib/Task";
 import { Middleware, ErrorThrowingMiddleware } from "./middleware.interface";
 
 export const useMiddleware = (middlewares: Middleware[]) => (
@@ -33,33 +34,26 @@ export const useMiddleware = (middlewares: Middleware[]) => (
 export const useErrorThrowingMiddleware = (middlewares: ErrorThrowingMiddleware[]) => (
   handler: (req: HttpRequest | unknown) => unknown | Promise<unknown>,
   errorHandler?: (req: HttpRequest | unknown, error: Error) => unknown | Promise<unknown>
-) => async (req: HttpRequest) =>
+) => (req: HttpRequest) =>
   pipe(
-    await middlewares.reduce(
-      async (prevResultFromMiddleware, middleware) =>
-        await pipe(
-          await prevResultFromMiddleware,
-          E.chain(
-            (unwrappedPreviousResult) =>
-              (TE.tryCatch(
-                async () => await middleware(unwrappedPreviousResult as HttpRequest),
-                E.toError
-                // The Promise<E.Either<Error, HttpRequest | unknown>> return type from the type Middleware type causes a compiler error
-                // @TODO fix this issue
-              )() as unknown) as E.Either<Error, unknown | HttpRequest>
-          )
+    middlewares.reduce(
+      (prevResultFromMiddleware: TE.TaskEither<Error, HttpRequest | unknown>, middleware) =>
+        TE.chain((res) => TE.tryCatch(async () => await middleware(res as HttpRequest), E.toError))(
+          prevResultFromMiddleware
         ),
-      Promise.resolve(E.right(req)) as Promise<E.Either<Error, HttpRequest | unknown>>
+      TE.tryCatch(() => Promise.resolve(req), E.toError) as TE.TaskEither<Error, HttpRequest | unknown>
     ),
-    E.fold(
-      async (err) =>
-        errorHandler
-          ? await errorHandler(req, err)
-          : (() => {
-              throw err;
-            })(),
-      async (resultFromMiddleware) => await handler(resultFromMiddleware)
+    TE.fold(
+      (err) =>
+        T.task.of(
+          errorHandler
+            ? errorHandler(req, err)
+            : (() => {
+                throw err;
+              })()
+        ),
+      (resultFromMiddleware) => T.task.of(handler(resultFromMiddleware))
     )
-  );
+  )();
 
 // Example middleware => const authenticated: E.Left<Error> | E.Right<any> = (req: HttpRequest) => Math.random() > 0.5 ? E.right(req) : E.left(new Error("User not authenticated"));
